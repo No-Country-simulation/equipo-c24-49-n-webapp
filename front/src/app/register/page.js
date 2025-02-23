@@ -2,12 +2,12 @@ import Navbar from "@/components/Navbar";
 
 const Register = () => {
   return (
-    <>
+    <div className="min-h-screen sm:overflow-hidden overflow-visible ">
       <Navbar />
 
-      <div className="mt-8 md:mt-18 flex-1 grid grid-cols-1 md:grid-cols-2 relative max-w-screen-2xl mx-auto">
+      <div className="relative mt-8 md:mt-18 flex-1 grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto ">
         {/* Columna Izquierda - Formulario */}
-        <div className="relative flex items-center justify-center p-6 mb-12">
+        <div className="relative flex items-center justify-center p-6">
           <div className="w-full max-w-md">
             <div className="card">
               <div className="card-body">
@@ -35,7 +35,7 @@ const Register = () => {
                     Continuar con Apple
                   </button>
                 </div>
-                
+
                 <div className="divider text-primary my-2"></div>
 
                 {/* Formulario */}
@@ -61,7 +61,7 @@ const Register = () => {
                     </label>
                     <input
                       type="password"
-                      placeholder="Introduce una contraseña..."
+                      placeholder="Introduce tu contraseña..."
                       className="input  input-bordered"
                     />
                   </div>
@@ -95,8 +95,12 @@ const Register = () => {
             />
           </div>
         </div>
+
+        <div className="absolute flex justify-center sm:-bottom-full bottom-0 sm:inset-0 -z-10">
+          <img src="/bee-pattern.svg" className=" "></img>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

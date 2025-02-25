@@ -2,8 +2,8 @@ import Navbar from "@/components/Navbar";
 
 const Login = () => {
   return (
-    <div className="min-h-screen sm:overflow-hidden overflow-visible ">
-      <Navbar />
+    <div className=" h-screen flex justify-center sm:overflow-hidden overflow-visible ">
+      {/* <Navbar /> */}
 
       <div className="relative mt-8 md:mt-18 flex-1 grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto ">
         {/* Columna Izquierda - Formulario */}

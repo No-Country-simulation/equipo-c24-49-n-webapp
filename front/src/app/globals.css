@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+@font-face {
+  font-family: 'MiFuente';
+  src: url('/fonts/Kokoro-Regular.woff2') format('woff2'),
+       url('/fonts/Kokoro-Regular.woff') format('woff'),
+       url('/fonts/Kokoro-Regular.ttf') format('truetype');
 }
 
+body {
+  font-family: 'Kodchasan', Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Kokoro', Arial, Helvetica, sans-serif;
+}
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }

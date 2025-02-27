@@ -11,7 +11,7 @@ export default function Page() {
         <NavBarDashboard/>
       </header>
       
-      <section>
+      <section className={`${kodchasan.className}`}>
         <h1 className={`${kodchasan.className} ml-28 text-[24px]`}>
           Escritorio
         </h1>

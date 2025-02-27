@@ -1,5 +1,13 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Kodchasan, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import BeePatern from "@/components/BeePatern";
+
+const kodchasan = Kodchasan({
+  variable: "--font-kodchasan",
+  weight: "400",
+  subsets: ["latin"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,12 +26,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
 
-            {children}
+    <html lang="en" suppressHydrationWarning>
+      <head></head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <header>
+          <Navbar />
+        </header>
+
+        {children}
+        <BeePatern />
+
       </body>
     </html>
   );

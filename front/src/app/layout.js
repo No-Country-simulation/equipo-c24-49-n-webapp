@@ -16,9 +16,6 @@ export default function RootLayout({ children }) {
       <body
         className={`${kodchasan.className} antialiased`}
       >
-        <header className="fixed max-w-7xl mx-auto top-[26px] left-0 right-0 backdrop-blur-sm z-50">
-
-        </header>
 
         {children}
       </body>

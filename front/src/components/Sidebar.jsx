@@ -11,8 +11,9 @@ const Sidebar = () => {
                         alt="Isologo Panal"
                         width={38.88}
                         height={37.88}
+                        className="cursor-pointer"
                     />
-                    <div >
+                    <div className="cursor-pointer">
                         <Image 
                             src="/panal.svg"
                             alt="Tipografía Panal"
@@ -28,7 +29,7 @@ const Sidebar = () => {
                         width={24}
                         height={24}
                     />
-                    <a >
+                    <a className="cursor-pointer">
                         Home
                     </a>
                 </li>
@@ -39,7 +40,7 @@ const Sidebar = () => {
                         width={24}
                         height={24}
                     />
-                    <a >
+                    <a className="cursor-pointer">
                         Tareas
                     </a>
                 </li>
@@ -50,7 +51,7 @@ const Sidebar = () => {
                         width={24}
                         height={24}
                     />
-                    <a >
+                    <a className="cursor-pointer">
                         Equipos
                     </a>
                 </li>
@@ -62,7 +63,7 @@ const Sidebar = () => {
                         width={24}
                         height={24}
                     />
-                    <a >
+                    <a className="cursor-pointer">
                         Configuración
                     </a>
             </div>

@@ -5,9 +5,11 @@ import Sidebar from "@/components/Sidebar"
 
 export default function Layout({ children }) {
   return (
-      <main className="flex flex-row">
+      <main className="relative flex flex-row w-full min-h-screen">
         <Sidebar/>
-        {children}
+        <div className="flex-1">
+          {children}
+        </div>
       </main>
   )
 }

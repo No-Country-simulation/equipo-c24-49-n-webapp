@@ -2,6 +2,7 @@ import { Kodchasan, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BeePatern from "@/components/BeePatern";
+import Providers from "./Providers";
 
 const kodchasan = Kodchasan({
   variable: "--font-kodchasan",
@@ -29,13 +30,18 @@ export default function RootLayout({ children }) {
 
     <html lang="en" suppressHydrationWarning>
       <head></head>
+
+      
       <body className={`${geistSans.variable} ${geistMono.variable} ${kodchasan.variable} antialiased`}>
+        <Providers>
+
         <header>
           <Navbar />
         </header>
 
         {children}
         <BeePatern />
+        </Providers>
 
       </body>
     </html>

@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+"use client";
 
 const Login = () => {
   return (

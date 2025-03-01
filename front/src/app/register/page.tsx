@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +19,9 @@ const Register = () => {
         email: formData.get("email"),
         password: formData.get("password"),
         fullname: formData.get("fullname"),
+        avatar: "", // Inicialmente vacío, el usuario puede subir un avatar después
+        role: "viewer", // Rol por defecto
+        projects: [], // Inicialmente sin proyectos
       });
 
       console.log(signupResponse);
@@ -31,7 +34,9 @@ const Register = () => {
       });
 
       if (res?.ok) {
-        router.push("/dashboard/profile");
+        router.push("/dashboard/profile"); // Redirigir al perfil después del registro
+      } else {
+        setError("Error al iniciar sesión después del registro");
       }
     } catch (error) {
       console.log(error);
@@ -69,7 +74,7 @@ const Register = () => {
                 <div className="flex flex-col gap-3">
                   <button
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
-                    onClick={() => signIn("google", redirect('/test'))}
+                    onClick={() => signIn("google", { callbackUrl: "/dashboard/profile" })}
                   >
                     <img
                       src="/google-icon.svg"
@@ -81,7 +86,7 @@ const Register = () => {
 
                   <button
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
-                    onClick={() => signIn("apple")}
+                    onClick={() => signIn("apple", { callbackUrl: "/dashboard/profile" })}
                   >
                     <img
                       src="/apple-icon.svg"
@@ -138,6 +143,7 @@ const Register = () => {
                       placeholder="Introduce tu contraseña..."
                       className="input input-bordered"
                       required
+                      minLength={6}
                     />
                   </div>
 

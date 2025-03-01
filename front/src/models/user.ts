@@ -15,9 +15,7 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
       select: false,
-      minLength: [6, "Password must be at least 6 characters"],
     },
     fullname: {
       type: String,
@@ -28,6 +26,7 @@ const UserSchema = new Schema(
     },
     avatar: {
       type: String,
+      $unset: { image: "" },
       default: "", // URL de la imagen de perfil
     },
     role: {

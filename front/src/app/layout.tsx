@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BeePatern from "@/components/BeePatern";
 import Providers from "./Providers";
+import { Toaster } from "react-hot-toast";
 
 const kodchasan = Kodchasan({
   variable: "--font-kodchasan",
@@ -33,6 +34,8 @@ export default function RootLayout({ children }) {
 
       
       <body className={`${geistSans.variable} ${geistMono.variable} ${kodchasan.variable} antialiased`}>
+      <Toaster />
+        
         <Providers>
 
         <header>

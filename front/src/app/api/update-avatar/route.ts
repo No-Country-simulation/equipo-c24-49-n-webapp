@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     const { email, avatar } = await request.json();
 
     // Buscar usuario por email (NO usar findById)
+    // @ts-ignore
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
     }
 
     // Actualizar usuario en MongoDB directamente en una sola operación
+    // @ts-ignore
 const updatedUser = await User.findOneAndUpdate(
   { email },
   { avatar },

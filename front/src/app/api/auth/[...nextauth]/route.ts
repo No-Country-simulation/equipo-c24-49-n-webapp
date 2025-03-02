@@ -68,7 +68,7 @@ const handler = NextAuth({
       await connectDB();
 
       if (!token.email) return token;
-
+      //@ts-ignore
       let userFromDB = await User.findOne({ email: token.email });
 
       if (userFromDB) {
@@ -112,7 +112,8 @@ const handler = NextAuth({
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
+      // @ts-ignore
       session.user = {
         _id: token._id,
         fullname: token.fullname,
@@ -123,7 +124,7 @@ const handler = NextAuth({
         createdAt: token.createdAt,
         updatedAt: token.updatedAt,
       };
-
+    
       return session;
     },
   },

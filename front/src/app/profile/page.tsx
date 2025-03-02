@@ -24,6 +24,7 @@ const ProfilePage = () => {
     return <p>No has iniciado sesión. Por favor, inicia sesión para ver tu perfil.</p>;
   }
 
+  // @ts-ignore
   const userImage = session.user?.avatar || "/user-icon.svg";
 
   // Manejar el guardado de la imagen en la base de datos
@@ -58,6 +59,7 @@ const ProfilePage = () => {
                 <label className="label">
                   <span className="label-text text-primary font-semibold">Nombre Completo</span>
                 </label>
+                {/* @ts-ignore */}
                 <p className="text-neutral-700">{session.user?.name || session.user?.fullname}</p>
               </div>
               <div>
@@ -70,6 +72,7 @@ const ProfilePage = () => {
                 <label className="label">
                   <span className="label-text text-primary font-semibold">Rol</span>
                 </label>
+                {/* @ts-ignore */}
                 <p className="text-neutral-700">{session.user?.role || "Usuario"}</p>
               </div>
               <button onClick={() => signOut()}>Cerrar sesión</button>

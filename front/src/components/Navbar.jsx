@@ -6,14 +6,15 @@ import Link from "next/link";
 const Navbar = () => {
   const pathname = usePathname();
 
-  if (pathname === "/dashboard") {
-    return null; // No renderiza nada si estamos en /dashboard
+  if (pathname.startsWith("/dashboard")) {
+    return null; 
   }
+  
 
   return (
     <div className="fixed max-w-7xl mx-auto top-[26px] left-0 right-0 backdrop-blur-sm z-50">
       <div className="navbar bg-base-100 flex justify-between px-4 md:px-8 max-w-screen-2xl mx-auto">
-        {/* Logo al extremo izquierdo */}
+       
         <div>
           <a
             href="/"
@@ -24,9 +25,9 @@ const Navbar = () => {
           </a>
         </div>
 
-        {/* Menú y botones al extremo derecho */}
+       
         <div className="gap-2">
-          {/* Menú */}
+        
           <ul className="menu menu-horizontal gap-2 text-sm font-semibold flex-nowrap mr-8 hidden md:flex">
             <li>
               <a href="#features">Recursos</a>
@@ -39,7 +40,7 @@ const Navbar = () => {
             </li>
           </ul>
           <div className="flex flex-nowrap gap-2">
-            {/* Botones de inicio de sesión y registro */}
+          
             {pathname !== "/login" && (
               <Link href="/login" className="btn">
                 Iniciar Sesión

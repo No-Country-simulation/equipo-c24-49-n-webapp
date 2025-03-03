@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
 export default function Page() {
   return (
+  
     <div className="h-screen flex items-center justify-center relative ">
       <main className="max-w-7xl px-4 md:px-10 mx-auto relative z-10 w-full">
         <div className="grid grid-cols-1 grid-cols-reverse md:grid-cols-12    items-center gap-6 md:gap-10  w-full">
@@ -30,5 +33,6 @@ export default function Page() {
         </div>
       </main>
     </div>
+
   );
 }

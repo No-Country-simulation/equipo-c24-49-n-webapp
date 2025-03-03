@@ -1,15 +1,28 @@
 "use client";
-
-import { FormEvent, useState } from "react";
+import { useSession } from "next-auth/react";
+import { FormEvent, useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 const Login = () => {
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+
+  useEffect(() => {
+    if (session?.user) {
+     
+      console.log("Usuario autenticado:", session.user);
+    }
+  }, [session]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
+    setError("");
+
     const formData = new FormData(event.currentTarget);
 
     const res = await signIn("credentials", {
@@ -18,6 +31,8 @@ const Login = () => {
       redirect: false,
     });
 
+    setLoading(false);
+
     if (res?.error) {
       setError(res.error);
     } else if (res?.ok) {
@@ -25,12 +40,20 @@ const Login = () => {
     }
   };
 
-  return (
-    <div className="h-screen flex justify-center sm:overflow-hidden overflow-visible">
-      {/* <Navbar /> */}
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard/profile");
+    }
+  }, [status, router]);
 
+ if (status === "loading") {
+    return <p className="text-center text-primary">Cargando...</p>;
+  }
+  return (
+    
+    <div className="h-screen flex justify-center sm:overflow-hidden overflow-visible">
       <div className="relative mt-8 md:mt-18 flex-1 grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto">
-        {/* Columna Izquierda - Formulario */}
+       
         <div className="relative flex items-center justify-center p-6">
           <div className="w-full max-w-md">
             <div className="card">
@@ -39,7 +62,7 @@ const Login = () => {
                   Inicia Sesión
                 </h1>
 
-                {/* Botones Sociales */}
+               
                 <div className="flex flex-col gap-3">
                   <button
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
@@ -55,7 +78,7 @@ const Login = () => {
 
                   <button
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
-                    onClick={() => signIn()}
+                    onClick={() => signIn("apple")}
                   >
                     <img
                       src="/apple-icon.svg"
@@ -68,7 +91,7 @@ const Login = () => {
 
                 <div className="divider text-primary my-2"></div>
 
-                {/* Formulario */}
+               
                 <form onSubmit={handleSubmit}>
                   {error && (
                     <div className="bg-red-500 text-white p-2 mb-4 rounded">
@@ -109,8 +132,9 @@ const Login = () => {
                   <button
                     type="submit"
                     className="btn btn-primary w-full mt-8"
+                    disabled={loading}
                   >
-                    Iniciar Sesión
+                    {loading ? "Cargando..." : "Iniciar Sesión"}
                   </button>
                 </form>
               </div>
@@ -118,7 +142,7 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Columna derecha - Imagen */}
+       
         <div className="flex relative items-center justify-center">
           <div className="absolute flex items-center justify-center inset-0 -z-10">
             <img
@@ -142,6 +166,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+  
   );
 };
 

@@ -26,13 +26,13 @@ export function AuthAwareLayout({ children, navbar, beePattern, publicPaths = ["
       if (status === "authenticated" && isPublicPath) {
         console.log("Redirigiendo: autenticado en ruta pública -> dashboard");
         setIsRedirecting(true);
-        router.push("/dashboard");
+        router.replace("/dashboard");
       } 
       // Caso 2: Usuario NO autenticado en ruta privada -> login
       else if (status === "unauthenticated" && !isPublicPath) {
         console.log("Redirigiendo: no autenticado en ruta privada -> login");
         setIsRedirecting(true);
-        router.push("/login");
+        router.replace("/login");
       }
       // Caso 3: Condición normal, no se requiere redirección
       else {
@@ -43,14 +43,17 @@ export function AuthAwareLayout({ children, navbar, beePattern, publicPaths = ["
 
   // Nuevo efecto para resetear isRedirecting cuando cambie la ruta
   useEffect(() => {
-    // Si estamos en la ruta de destino después de una redirección, resetear el estado
-    if (
-      (status === "authenticated" && pathname === "/dashboard") || 
-      (status === "unauthenticated" && pathname === "/login")
-    ) {
-      setIsRedirecting(false);
+    if (status === "loading") return; // Esperar hasta que se determine la sesión
+  
+    if (status === "authenticated" && isPublicPath) {
+      setIsRedirecting(true);
+      router.replace("/dashboard");
+    } else if (status === "unauthenticated" && !isPublicPath) {
+      setIsRedirecting(true);
+      router.replace("/login");
     }
-  }, [pathname, status]);
+  }, [status, isPublicPath, pathname, router]);
+  
 
   // Depuración
   console.log(`Path: ${pathname}, Public: ${isPublicPath}, Status: ${status}, Redirecting: ${isRedirecting}, Initial: ${isInitialRender}`);

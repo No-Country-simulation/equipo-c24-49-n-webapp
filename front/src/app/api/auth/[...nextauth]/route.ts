@@ -62,7 +62,7 @@ const handler = NextAuth({
       return true; // Dejar que NextAuth siga su proceso normal
     },
     async redirect({ url, baseUrl }) {
-      return "/profile"; // Redirigir al perfil después del inicio de sesión
+      return "/dashboard/profile"; // Redirigir al perfil después del inicio de sesión
     },
     async jwt({ token, user }) {
       await connectDB();

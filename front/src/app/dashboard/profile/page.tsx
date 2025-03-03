@@ -4,9 +4,12 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { UploadButton } from "@/utils/uploadthing"; // Asegúrate de que esté importado
+import { useRouter } from "next/navigation";
 
 const ProfilePage = () => {
   const { data: session, status } = useSession();
+  const router = useRouter();
+
   useEffect(() => {
     if (status !== "loading") {
       console.log("Session on profile:", JSON.stringify(session, null, 2));
@@ -50,7 +53,7 @@ const ProfilePage = () => {
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="card bg-base-100 shadow-lg w-full max-w-2xl">
-        <h1 className="card-title mx-auto text-3xl text-primary mb-2">Perfil de Usuario</h1>
+          <h1 className="card-title mx-auto text-3xl text-primary mb-2">Perfil de Usuario</h1>
 
           <div className="card-body flex flex-col md:flex-row gap-8">
             {/* Información del usuario */}
@@ -75,11 +78,18 @@ const ProfilePage = () => {
                 {/* @ts-ignore */}
                 <p className="text-neutral-700">{session.user?.role || "Usuario"}</p>
               </div>
-              <button onClick={() => signOut()}>Cerrar sesión</button>
+              <button
+                onClick={() => {
+                  signOut();
+                  router.push("/login");
+                }}
+              >
+                Cerrar sesión
+              </button>
 
             </div>
-              {/* Imagen de perfil */}
-              <div className="flex flex-col items-center gap-4">
+            {/* Imagen de perfil */}
+            <div className="flex flex-col items-center gap-4">
               <img
                 src={userImage}
                 alt="Imagen de perfil"
@@ -88,8 +98,8 @@ const ProfilePage = () => {
               <div className="mt-4">
                 {/* Botón de UploadThing */}
                 <UploadButton
-                className="bg-red-200"
-                
+                  className="bg-red-200"
+
                   endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
                     if (res?.[0]?.url) {
@@ -100,7 +110,7 @@ const ProfilePage = () => {
                     toast.error(`Error al subir la imagen: ${error.message}`);
                   }}
                 />
-                
+
               </div>
             </div>
           </div>

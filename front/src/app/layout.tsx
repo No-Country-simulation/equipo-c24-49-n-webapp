@@ -1,9 +1,12 @@
+"use client";
+
 import { Kodchasan, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BeePatern from "@/components/BeePatern";
 import Providers from "./Providers";
 import { Toaster } from "react-hot-toast";
+import { AuthAwareLayout } from "@/components/AuthAwareLayout";
 
 const kodchasan = Kodchasan({
   variable: "--font-kodchasan",
@@ -21,31 +24,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Gestor de Tareas",
-  description: "Gestor de Tareas",
-};
-
 export default function RootLayout({ children }) {
   return (
-
     <html lang="en" suppressHydrationWarning>
       <head></head>
 
-      
       <body className={`${geistSans.variable} ${geistMono.variable} ${kodchasan.variable} antialiased`}>
-      <Toaster />
-        
+        <Toaster />
         <Providers>
-
-        <header>
-          <Navbar />
-        </header>
-
-        {children}
-        <BeePatern />
+          <AuthAwareLayout
+         
+            navbar={
+              <header>
+                <Navbar />
+              </header>
+            }
+            beePattern={<BeePatern />}
+            publicPaths={["/", "/login", "/register"]}
+          >
+            {children}
+          </AuthAwareLayout>
         </Providers>
-
       </body>
     </html>
   );

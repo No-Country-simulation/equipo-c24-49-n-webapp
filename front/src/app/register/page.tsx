@@ -5,6 +5,7 @@ import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+
 const Register = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -50,6 +51,7 @@ const Register = () => {
   };
 
   return (
+ 
     <div className="min-h-screen flex justify-center sm:overflow-hidden overflow-visible">
       {/* <Navbar /> */}
 
@@ -183,6 +185,7 @@ const Register = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

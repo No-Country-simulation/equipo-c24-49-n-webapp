@@ -11,30 +11,30 @@ const TaskSchema = new Schema(
       type: String,
       required: [true, "Task description is required"],
     },
-    project_id: {
+    category: {
       type: Schema.Types.ObjectId,
-      ref: "Project", // Referencia al proyecto al que pertenece la tarea
+      ref: "Category", 
       required: true,
     },
     creator: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Referencia al usuario que creó la tarea
+      ref: "User", 
       required: true,
     },
     assigned: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User", // Referencia a los usuarios asignados a la tarea
+        ref: "User", 
       },
     ],
     status: {
       type: String,
-      enum: ["pending", "in_progress", "completed"], // Estados permitidos
+      enum: ["pending", "in_progress", "completed"], 
       default: "pending",
     },
     priority: {
       type: String,
-      enum: ["low", "medium", "high"], // Prioridades permitidas
+      enum: ["low", "medium", "high"], 
       default: "medium",
     },
     due_date: {
@@ -44,13 +44,13 @@ const TaskSchema = new Schema(
     comments: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Comment", // Referencia a los comentarios de la tarea
+        ref: "Comment", 
       },
     ],
     files: [
       {
-        url: String, // URL del archivo
-        name: String, // Nombre del archivo
+        url: String, 
+        name: String, 
       },
     ],
   },

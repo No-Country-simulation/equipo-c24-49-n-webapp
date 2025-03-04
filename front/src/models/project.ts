@@ -13,19 +13,19 @@ const ProjectSchema = new Schema(
     },
     creator: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Referencia al usuario creador
+      ref: "User", 
       required: true,
     },
-    tasks: [
+    categories: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Task", // Referencia a las tareas del proyecto
+        ref: "Category", 
       },
     ],
     channels: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Channel", // Referencia a los canales del proyecto
+        ref: "Channel", 
       },
     ],
   },

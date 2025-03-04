@@ -6,6 +6,7 @@ export interface IProject extends Document {
   creator: Types.ObjectId;
   categories: Types.ObjectId[];
   channels: Types.ObjectId[];
+  collaborators: Types.ObjectId[]; 
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +31,12 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
       ref: "User",
       required: true,
     },
+    collaborators: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ProjectCollaborator", 
+      },
+    ], 
     categories: [
       {
         type: Schema.Types.ObjectId,

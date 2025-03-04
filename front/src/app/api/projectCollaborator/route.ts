@@ -5,7 +5,7 @@ import Project from "@/models/project";
 import User from "@/models/user";
 import { connectDB } from "@/libs/mongodb";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "./../auth/[...nextauth]/route";
+import { authOptions } from "./../auth/[...nextauth]/options";
 
 export async function GET(request: Request) {
   try {

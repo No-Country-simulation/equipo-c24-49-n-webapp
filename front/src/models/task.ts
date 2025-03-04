@@ -1,6 +1,21 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const TaskSchema = new Schema(
+export interface ITask extends Document {
+  title: string;
+  description: string;
+  status: "pending" | "in-progress" | "completed";
+  category: Types.ObjectId;
+  assignedTo: Types.ObjectId;
+  dueDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ITaskModel extends Model<ITask> {
+  findByTitle?(title: string): Promise<ITask | null>;
+}
+
+const TaskSchema = new Schema<ITask, ITaskModel>(
   {
     title: {
       type: String,
@@ -11,53 +26,30 @@ const TaskSchema = new Schema(
       type: String,
       required: [true, "Task description is required"],
     },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: "Category", 
-      required: true,
-    },
-    creator: {
-      type: Schema.Types.ObjectId,
-      ref: "User", 
-      required: true,
-    },
-    assigned: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User", 
-      },
-    ],
     status: {
       type: String,
-      enum: ["pending", "in_progress", "completed"], 
+      enum: ["pending", "in-progress", "completed"],
       default: "pending",
     },
-    priority: {
-      type: String,
-      enum: ["low", "medium", "high"], 
-      default: "medium",
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
-    due_date: {
+    assignedTo: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    dueDate: {
       type: Date,
-      required: [true, "Due date is required"],
     },
-    comments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Comment", 
-      },
-    ],
-    files: [
-      {
-        url: String, 
-        name: String, 
-      },
-    ],
   },
   {
     timestamps: true,
   }
 );
 
-const Task = models.Task || model("Task", TaskSchema);
+const Task = (models.Task as ITaskModel) || 
+  model<ITask, ITaskModel>("Task", TaskSchema);
+
 export default Task;

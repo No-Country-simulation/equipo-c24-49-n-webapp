@@ -1,21 +1,33 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const ProjectCollaboratorSchema = new Schema(
+export interface IProjectCollaborator extends Document {
+  project: Types.ObjectId;
+  user: Types.ObjectId;
+  role: "admin" | "editor" | "viewer";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface IProjectCollaboratorModel extends Model<IProjectCollaborator> {
+  findByUser?(userId: Types.ObjectId): Promise<IProjectCollaborator | null>;
+}
+
+const ProjectCollaboratorSchema = new Schema<IProjectCollaborator, IProjectCollaboratorModel>(
   {
-    project_id: {
+    project: {
       type: Schema.Types.ObjectId,
-      ref: "Project", // Referencia al proyecto
+      ref: "Project",
       required: true,
     },
-    user_id: {
+    user: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Referencia al usuario colaborador
+      ref: "User",
       required: true,
     },
     role: {
       type: String,
-      enum: ["admin", "editor", "viewer"], // Roles permitidos
-      required: true,
+      enum: ["admin", "editor", "viewer"],
+      default: "viewer",
     },
   },
   {
@@ -23,6 +35,7 @@ const ProjectCollaboratorSchema = new Schema(
   }
 );
 
-const ProjectCollaborator =
-  models.ProjectCollaborator || model("ProjectCollaborator", ProjectCollaboratorSchema);
+const ProjectCollaborator = (models.ProjectCollaborator as IProjectCollaboratorModel) || 
+  model<IProjectCollaborator, IProjectCollaboratorModel>("ProjectCollaborator", ProjectCollaboratorSchema);
+
 export default ProjectCollaborator;

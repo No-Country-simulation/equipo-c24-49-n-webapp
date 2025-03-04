@@ -1,20 +1,32 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const CommentSchema = new Schema(
+export interface IComment extends Document {
+  content: string;
+  task: Types.ObjectId;
+  author: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ICommentModel extends Model<IComment> {
+  findByContent?(content: string): Promise<IComment | null>;
+}
+
+const CommentSchema = new Schema<IComment, ICommentModel>(
   {
-    task_id: {
+    content: {
+      type: String,
+      required: [true, "Comment content is required"],
+    },
+    task: {
       type: Schema.Types.ObjectId,
-      ref: "Task", // Referencia a la tarea del comentario
+      ref: "Task",
       required: true,
     },
     author: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Referencia al usuario que escribió el comentario
+      ref: "User",
       required: true,
-    },
-    message: {
-      type: String,
-      required: [true, "Message is required"],
     },
   },
   {
@@ -22,5 +34,7 @@ const CommentSchema = new Schema(
   }
 );
 
-const Comment = models.Comment || model("Comment", CommentSchema);
+const Comment = (models.Comment as ICommentModel) || 
+  model<IComment, ICommentModel>("Comment", CommentSchema);
+
 export default Comment;

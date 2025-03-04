@@ -1,6 +1,18 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const CategorySchema = new Schema(
+export interface ICategory extends Document {
+  name: string;
+  project: Types.ObjectId;
+  tasks: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ICategoryModel extends Model<ICategory> {
+  findByName?(name: string): Promise<ICategory | null>;
+}
+
+const CategorySchema = new Schema<ICategory, ICategoryModel>(
   {
     name: {
       type: String,
@@ -9,13 +21,13 @@ const CategorySchema = new Schema(
     },
     project: {
       type: Schema.Types.ObjectId,
-      ref: "Project", 
+      ref: "Project",
       required: true,
     },
     tasks: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Task", 
+        ref: "Task",
       },
     ],
   },
@@ -24,5 +36,7 @@ const CategorySchema = new Schema(
   }
 );
 
-const Category = models.Category || model("Category", CategorySchema);
+const Category = (models.Category as ICategoryModel) || 
+  model<ICategory, ICategoryModel>("Category", CategorySchema);
+
 export default Category;

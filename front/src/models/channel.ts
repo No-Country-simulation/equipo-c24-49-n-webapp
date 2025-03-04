@@ -1,27 +1,33 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const ChannelSchema = new Schema(
+export interface IChannel extends Document {
+  name: string;
+  project: Types.ObjectId;
+  messages: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface IChannelModel extends Model<IChannel> {
+  findByName?(name: string): Promise<IChannel | null>;
+}
+
+const ChannelSchema = new Schema<IChannel, IChannelModel>(
   {
-    project_id: {
-      type: Schema.Types.ObjectId,
-      ref: "Project", // Referencia al proyecto del canal
-      required: true,
-    },
     name: {
       type: String,
       required: [true, "Channel name is required"],
+      trim: true,
+    },
+    project: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
     },
     messages: [
       {
-        author: {
-          type: Schema.Types.ObjectId,
-          ref: "User", // Referencia al usuario que envió el mensaje
-          required: true,
-        },
-        content: {
-          type: String,
-          required: [true, "Message content is required"],
-        },
+        type: Schema.Types.ObjectId,
+        ref: "Message",
       },
     ],
   },
@@ -30,5 +36,7 @@ const ChannelSchema = new Schema(
   }
 );
 
-const Channel = models.Channel || model("Channel", ChannelSchema);
+const Channel = (models.Channel as IChannelModel) || 
+  model<IChannel, IChannelModel>("Channel", ChannelSchema);
+
 export default Channel;

@@ -3,6 +3,10 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "typeRoots": [
+        "./node_modules/@types",
+        "./types"
       ]
     },
     "jsx": "preserve",

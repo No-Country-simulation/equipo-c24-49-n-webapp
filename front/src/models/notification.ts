@@ -1,19 +1,26 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const NotificationSchema = new Schema(
+export interface INotification extends Document {
+  message: string;
+  user: Types.ObjectId;
+  read: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface INotificationModel extends Model<INotification> {
+  findByMessage?(message: string): Promise<INotification | null>;
+}
+
+const NotificationSchema = new Schema<INotification, INotificationModel>(
   {
-    user_id: {
-      type: Schema.Types.ObjectId,
-      ref: "User", // Referencia al usuario que recibe la notificación
-      required: true,
-    },
     message: {
       type: String,
-      required: [true, "Message is required"],
+      required: [true, "Notification message is required"],
     },
-    type: {
-      type: String,
-      enum: ["assignment", "comment", "status_change"], // Tipos de notificaciones
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     read: {
@@ -26,5 +33,7 @@ const NotificationSchema = new Schema(
   }
 );
 
-const Notification = models.Notification || model("Notification", NotificationSchema);
+const Notification = (models.Notification as INotificationModel) || 
+  model<INotification, INotificationModel>("Notification", NotificationSchema);
+
 export default Notification;

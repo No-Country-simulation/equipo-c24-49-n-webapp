@@ -1,43 +1,44 @@
+import NextAuth, { AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { connectDB } from "@/libs/mongodb";
 import User from "@/models/user";
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import client from "@/libs/db";
 
-const handler = NextAuth({
+const authOptions: AuthOptions = {
   secret: process.env.AUTH_SECRET,
   adapter: MongoDBAdapter(client),
 
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: process.env.AUTH_GOOGLE_ID || "",
+      clientSecret: process.env.AUTH_GOOGLE_SECRET || "",
     }),
     CredentialsProvider({
       name: "Credentials",
-      id: "credentials",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "jsmith" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        // Validación de credenciales
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Invalid credentials");
         }
 
+        // Conexión a la base de datos
         await connectDB();
-        //@ts-ignore
-        const userFound = await User.findOne({
-          email: credentials.email,
-        }).select("+password");
 
-        if (!userFound || !userFound.password) {
+        // Buscar usuario
+        const userFound = await User.findByEmail(credentials.email);
+
+        if (!userFound) {
           throw new Error("Invalid credentials");
         }
 
+        // Verificar contraseña
         const passwordMatch = await bcrypt.compare(
           credentials.password,
           userFound.password
@@ -47,77 +48,56 @@ const handler = NextAuth({
           throw new Error("Invalid credentials");
         }
 
-        return { ...userFound.toObject(), password: undefined }; // Excluye la contraseña
+        // Devolver usuario sin contraseña
+        return { 
+          id: userFound._id.toString(),
+          email: userFound.email,
+          name: userFound.fullname,
+          image: userFound.avatar
+        };
       },
     }),
   ],
+
   pages: {
     signIn: "/login",
   },
+
   session: {
     strategy: "jwt",
   },
+
   callbacks: {
-    async signIn({ user, account }) {
-      return true; // Dejar que NextAuth siga su proceso normal
-    },
-    async redirect({ url, baseUrl }) {
-      return "/dashboard"; // Redirigir al perfil después del inicio de sesión
-    },
     async jwt({ token, user }) {
-      await connectDB();
+      if (user) {
+        await connectDB();
 
-      if (!token.email) return token;
-      //@ts-ignore
-      let userFromDB = await User.findOne({ email: token.email });
+        const userFromDB = await User.findOne({ email: token.email });
 
-      if (userFromDB) {
-        // Solo asignar la imagen de Google si no tiene una imagen personalizada
-        userFromDB.fullname = user?.name || token.name || userFromDB.fullname;
-
-        if (
-          !userFromDB.avatar ||
-          userFromDB.avatar.includes("googleusercontent")
-        ) {
-          userFromDB.avatar = user?.image || token.picture || userFromDB.avatar;
+        if (userFromDB) {
+          token._id = userFromDB._id.toString();
+          token.fullname = userFromDB.fullname;
+          token.avatar = userFromDB.avatar;
+          token.role = userFromDB.role;
+          
+          // Mapear ObjectId a strings
+          token.projects = userFromDB.projects.map((project: any) => 
+            project.toString()
+          );
+          
+          token.createdAt = userFromDB.createdAt;
+          token.updatedAt = userFromDB.updatedAt;
         }
-
-        userFromDB.updatedAt = new Date();
-        await userFromDB.save();
-        console.log("🔄 Usuario actualizado en users");
-      } else {
-        userFromDB = new User({
-          fullname: user?.name || token.name,
-          email: token.email,
-          avatar: user?.image || token.picture || "", // Se crea con la imagen de Google si no hay otra
-          role: "viewer",
-          projects: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-
-        await userFromDB.save();
-        console.log("✅ Usuario creado en users");
       }
-
-      // Asignar los datos correctos al token
-      token._id = userFromDB._id.toString();
-      token.fullname = userFromDB.fullname;
-      token.avatar = userFromDB.avatar;
-      token.role = userFromDB.role;
-      token.projects = userFromDB.projects;
-      token.createdAt = userFromDB.createdAt;
-      token.updatedAt = userFromDB.updatedAt;
 
       return token;
     },
 
-    async session({ session, token }: { session: any; token: any }) {
-      // @ts-ignore
+    async session({ session, token }) {
       session.user = {
+        ...session.user,
         _id: token._id,
         fullname: token.fullname,
-        email: token.email,
         avatar: token.avatar,
         role: token.role,
         projects: token.projects,
@@ -128,6 +108,8 @@ const handler = NextAuth({
       return session;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

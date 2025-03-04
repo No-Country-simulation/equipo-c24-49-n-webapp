@@ -1,4 +1,3 @@
-// app/api/comments/route.ts
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import Comment, { IComment } from "@/models/comment";

@@ -1,6 +1,20 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const ProjectSchema = new Schema(
+export interface IProject extends Document {
+  name: string;
+  description: string;
+  creator: Types.ObjectId;
+  categories: Types.ObjectId[];
+  channels: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface IProjectModel extends Model<IProject> {
+  findByName?(name: string): Promise<IProject | null>;
+}
+
+const ProjectSchema = new Schema<IProject, IProjectModel>(
   {
     name: {
       type: String,
@@ -13,19 +27,19 @@ const ProjectSchema = new Schema(
     },
     creator: {
       type: Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
       required: true,
     },
     categories: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Category", 
+        ref: "Category",
       },
     ],
     channels: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Channel", 
+        ref: "Channel",
       },
     ],
   },
@@ -34,5 +48,7 @@ const ProjectSchema = new Schema(
   }
 );
 
-const Project = models.Project || model("Project", ProjectSchema);
+const Project = (models.Project as IProjectModel) || 
+  model<IProject, IProjectModel>("Project", ProjectSchema);
+
 export default Project;

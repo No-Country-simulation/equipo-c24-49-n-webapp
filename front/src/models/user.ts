@@ -1,6 +1,24 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
-const UserSchema = new Schema(
+// Definir la interfaz del usuario
+export interface IUser extends Document {
+  email: string;
+  password: string;
+  fullname: string;
+  avatar: string;
+  role: "admin" | "editor" | "viewer";
+  projects: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Métodos estáticos (opcional)
+interface IUserModel extends Model<IUser> {
+  findByEmail(email: string): Promise<IUser | null>;
+}
+
+// Esquema del usuario
+const UserSchema = new Schema<IUser, IUserModel>(
   {
     email: {
       type: String,
@@ -15,7 +33,7 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      select: false,
+      select: false, // No devolver la contraseña en las consultas
     },
     fullname: {
       type: String,
@@ -26,7 +44,6 @@ const UserSchema = new Schema(
     },
     avatar: {
       type: String,
-      $unset: { image: "" },
       default: "", // URL de la imagen de perfil
     },
     role: {
@@ -42,9 +59,16 @@ const UserSchema = new Schema(
     ],
   },
   {
-    timestamps: true,
+    timestamps: true, // Agrega createdAt y updatedAt automáticamente
   }
 );
 
-const User = models.User || model("User", UserSchema);
+// Método estático para buscar por email
+UserSchema.statics.findByEmail = function (email: string) {
+  return this.findOne({ email }).select("+password"); // Incluir la contraseña en la consulta
+};
+
+// Crear o recuperar el modelo
+const User = (models.User as IUserModel) || model<IUser, IUserModel>("User", UserSchema);
+
 export default User;

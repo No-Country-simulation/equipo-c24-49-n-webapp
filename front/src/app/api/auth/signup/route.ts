@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     }
 
     // Verificar si el usuario ya existe
-    //@ts-ignore
     const userFound = await User.findOne({ email });
 
     if (userFound) {

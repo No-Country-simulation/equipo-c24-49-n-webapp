@@ -13,12 +13,13 @@ const DashboardCard = () => {
     return <p>No has iniciado sesión.</p>;
   }
 
-  const userName = session.user?.name || session.user?.fullname || "Invitado";
+  const fullName = session.user?.name || session.user?.fullname || "Invitado";
+  const firstName = fullName.split(" ")[0]; // Obtiene el primer nombre
 
   return (
     <section className="relative bg-white shadow-md drop-shadow-md rounded-2xl ml-16 mr-14 mt-4 pt-14 pr-24 p-5 pl-7 flex flex-col">
       <div className="flex flex-col gap-8 mb-[45px]">
-        <h2 className="text-[40px] font-medium">Hola, {userName}!</h2>
+        <h2 className="text-[40px] font-medium">Hola, {firstName}!</h2>
         <p className="text-[20px]">¿Qué vas a hacer hoy?</p>
       </div>
 

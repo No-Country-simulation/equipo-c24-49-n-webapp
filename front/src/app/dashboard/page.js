@@ -7,10 +7,7 @@ import DashboardCard from "@/components/UserCard";
 export default function Page() {
   return (
     <div className="flex flex-col item-center text-secondary-content">
-      <header className="w-full">
-        <NavBarDashboard/>
-      </header>
-      
+            
       <section className={`${kodchasan.className}`}>
         <h1 className={`${kodchasan.className} ml-28 text-[24px]`}>
           Escritorio

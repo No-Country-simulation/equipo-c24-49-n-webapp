@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       _id: projectId,
       $or: [
         { creator: session.user._id },
-        { collaborators: { $elemMatch: { user: session.user._id } }
+        { collaborators: { $elemMatch: { user: session.user._id } } }
       ]
     });
 

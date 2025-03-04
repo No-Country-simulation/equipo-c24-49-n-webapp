@@ -22,40 +22,56 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
     
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
+      async authorize(credentials, req) {
+       
+        if (!credentials) {
+          throw new Error("No credentials provided");
         }
 
-        await connectDB();
-        const userFound = await User.findOne({ email: credentials.email });
+        const { email, password } = credentials;
 
-        if (!userFound) {
-          throw new Error("Invalid credentials");
+        if (typeof email !== 'string' || typeof password !== 'string') {
+          throw new Error("Invalid credentials format");
         }
 
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          userFound.password
-        );
-
-        if (!passwordMatch) {
-          throw new Error("Invalid credentials");
+        if (!email || !password) {
+          throw new Error("Email and password are required");
         }
 
-        return {
-          _id: userFound._id.toString(),
-          id: userFound._id.toString(),
-          email: userFound.email,
-          name: userFound.fullname,
-          fullname: userFound.fullname,
-          image: userFound.avatar,
-          avatar: userFound.avatar,
-          role: userFound.role,
-          projects: userFound.projects.map((p: any) => p.toString()),
-          createdAt: userFound.createdAt,
-          updatedAt: userFound.updatedAt,
-        };
+        try {
+          await connectDB();
+          const userFound = await User.findOne({ email }).select('+password');
+
+          if (!userFound) {
+            throw new Error("Invalid credentials");
+          }
+
+          const passwordMatch = await bcrypt.compare(
+            password,
+            userFound.password
+          );
+
+          if (!passwordMatch) {
+            throw new Error("Invalid credentials");
+          }
+
+          return {
+            id: userFound._id.toString(), 
+            _id: userFound._id.toString(),
+            email: userFound.email,
+            name: userFound.fullname,
+            fullname: userFound.fullname,
+            image: userFound.avatar,
+            avatar: userFound.avatar,
+            role: userFound.role,
+            projects: userFound.projects.map((p: any) => p.toString()),
+            createdAt: userFound.createdAt,
+            updatedAt: userFound.updatedAt,
+          };
+        } catch (error) {
+          console.error("Authentication error:", error);
+          throw new Error("Authentication failed");
+        }
       },
     }),
   ],
@@ -66,30 +82,47 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile }) {
+    
       if (user) {
-        token._id = user._id;
-        token.fullname = user.fullname;
-        token.avatar = user.avatar;
-        token.role = user.role;
-        token.projects = user.projects;
+        token.id = user.id;
+        token._id = user._id || user.id;
+        token.fullname = user.fullname || user.name;
+        token.avatar = user.avatar || user.image;
+        token.role = user.role || 'viewer';
+        token.projects = user.projects || [];
         token.createdAt = user.createdAt;
         token.updatedAt = user.updatedAt;
       }
+
       return token;
     },
     async session({ session, token }) {
+     
       session.user = {
         ...session.user,
-        _id: token._id,
-        fullname: token.fullname,
-        avatar: token.avatar,
-        role: token.role,
-        projects: token.projects,
-        createdAt: token.createdAt,
-        updatedAt: token.updatedAt,
+        id: token.id as string,
+        _id: token._id as string, 
+        fullname: token.fullname as string, 
+        avatar: token.avatar as string, 
+        role: token.role as "admin" | "editor" | "viewer",
+        projects: token.projects as string[], 
+        createdAt: token.createdAt as Date, 
+        updatedAt: token.updatedAt as Date, 
       };
       return session;
+    },
+  },
+  
+  events: {
+    async signIn(message) {
+      console.log('Sign in successful', message);
+    },
+    async signOut(message) {
+      console.log('Sign out successful', message);
+    },
+    async createUser(message) {
+      console.log('User created', message);
     },
   },
 };

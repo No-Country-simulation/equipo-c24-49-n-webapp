@@ -7,13 +7,13 @@ declare module "next-auth" {
     fullname: string;
     avatar: string;
     role: "admin" | "editor" | "viewer";
-    projects: string[]; // Cambia a string[] en lugar de Types.ObjectId[]
+    projects: string[]; 
     createdAt: Date;
     updatedAt: Date;
   }
 
   interface Session {
-    user: User;
+    user: User & DefaultSession["user"];
   }
 }
 
@@ -23,7 +23,7 @@ declare module "next-auth/jwt" {
     fullname: string;
     avatar: string;
     role: "admin" | "editor" | "viewer";
-    projects: string[]; // Asegurar que sean strings
+    projects: string[];
     createdAt: Date;
     updatedAt: Date;
   }

@@ -7,5 +7,12 @@ interface Props {
 }
 
 export default function Providers({ children }: Props) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider 
+      refetchInterval={60 * 60}  // Refresca cada hora en vez de cada navegación
+      refetchOnWindowFocus={false}  // No refresca al volver a la ventana
+    >
+      {children}
+    </SessionProvider>
+  );
 }

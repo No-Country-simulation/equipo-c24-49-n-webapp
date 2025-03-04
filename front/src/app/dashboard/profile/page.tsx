@@ -1,34 +1,19 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { UploadButton } from "@/utils/uploadthing"; // Asegúrate de que esté importado
+import { UploadButton } from "@/utils/uploadthing";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthAwareLayout"; 
 
 const ProfilePage = () => {
-  const { data: session, status } = useSession();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (status !== "loading") {
-      console.log("Session on profile:", JSON.stringify(session, null, 2));
-    }
-  }, [session, status]); // Se ejecuta cuando la sesión cambia
-
-
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  if (status === "loading") {
-    return <p>Cargando...</p>;
-  }
-
-  if (!session) {
-    return <p>No has iniciado sesión. Por favor, inicia sesión para ver tu perfil.</p>;
-  }
-
-  // @ts-ignore
-  const userImage = session.user?.avatar || "/user-icon.svg";
+  // Usar directamente la información del usuario del contexto
+  const userImage = user?.avatar || "/user-icon.svg";
 
   // Manejar el guardado de la imagen en la base de datos
   const saveAvatar = async (imageUrl: string) => {
@@ -36,7 +21,7 @@ const ProfilePage = () => {
       const response = await fetch("/api/update-avatar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: session.user?.email, avatar: imageUrl }),
+        body: JSON.stringify({ email: user?.email, avatar: imageUrl }),
       });
 
       if (!response.ok) throw new Error("Error al guardar la imagen en la base de datos");
@@ -62,21 +47,19 @@ const ProfilePage = () => {
                 <label className="label">
                   <span className="label-text text-primary font-semibold">Nombre Completo</span>
                 </label>
-                {/* @ts-ignore */}
-                <p className="text-neutral-700">{session.user?.name || session.user?.fullname}</p>
+                <p className="text-neutral-700">{user?.name || user?.fullname}</p>
               </div>
               <div>
                 <label className="label">
                   <span className="label-text text-primary font-semibold">Email</span>
                 </label>
-                <p className="text-neutral-700">{session.user?.email}</p>
+                <p className="text-neutral-700">{user?.email}</p>
               </div>
               <div>
                 <label className="label">
                   <span className="label-text text-primary font-semibold">Rol</span>
                 </label>
-                {/* @ts-ignore */}
-                <p className="text-neutral-700">{session.user?.role || "Usuario"}</p>
+                <p className="text-neutral-700">{user?.role || "Usuario"}</p>
               </div>
               <button
                 onClick={() => {
@@ -86,7 +69,6 @@ const ProfilePage = () => {
               >
                 Cerrar sesión
               </button>
-
             </div>
             {/* Imagen de perfil */}
             <div className="flex flex-col items-center gap-4">
@@ -99,7 +81,6 @@ const ProfilePage = () => {
                 {/* Botón de UploadThing */}
                 <UploadButton
                   className="bg-red-200"
-
                   endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
                     if (res?.[0]?.url) {
@@ -110,7 +91,6 @@ const ProfilePage = () => {
                     toast.error(`Error al subir la imagen: ${error.message}`);
                   }}
                 />
-
               </div>
             </div>
           </div>

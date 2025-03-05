@@ -7,6 +7,7 @@ import BeePatern from "@/components/BeePatern";
 import Providers from "./Providers";
 import { Toaster } from "react-hot-toast";
 import { AuthAwareLayout } from "@/components/AuthAwareLayout";
+import { usePathname } from "next/navigation";
 
 const kodchasan = Kodchasan({
   variable: "--font-kodchasan",
@@ -25,31 +26,43 @@ const geistMono = Geist_Mono({
 });
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+
+  // 🛑 Excluir el layout global en `/api-doc`
+  if (pathname.startsWith("/api-doc")) {
+    return <>{children}</>;
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Panal - Gestor de Tareas</title> 
+        <title>Panal - Gestor de Tareas</title>
         <meta name="description" content="Gestor de Tareas Colaborativo" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
       </head>
 
-      <body className={`${geistSans.variable} ${geistMono.variable} ${kodchasan.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${kodchasan.variable} antialiased`}
+      >
         <Toaster />
         <Providers>
-          <AuthAwareLayout
+          <header>
+            <Navbar />
+          </header>
+          <BeePatern />
+          {/* <AuthAwareLayout
             navbar={
-              <header>
-                <Navbar />
-              </header>
+          <header>
+            <Navbar />
+          </header>
             }
             beePattern={<BeePatern />}
             publicPaths={["/", "/login", "/register"]}
-          >
-            {children}
-          </AuthAwareLayout>
+          > */}
+          {children}
+          {/* </AuthAwareLayout> */}
         </Providers>
       </body>
     </html>

@@ -1,39 +1,48 @@
-import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import Project from "@/models/project";
-import { connectDB } from "@/libs/mongodb";
+import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import Project from '@/models/project';
+import { connectDB } from '@/libs/mongodb';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     await connectDB();
-    
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
-      return NextResponse.json({ error: "ID inválido" }, { status: 400 });
+
+    const { id } = await params;
+
+    let projectId;
+    try {
+      projectId = new mongoose.Types.ObjectId(id);
+    } catch (error) {
+      return NextResponse.json({ error: 'ID de proyecto inválido' }, { status: 400 });
     }
 
-    const project = await Project.findById(params.id)
+    const project = await Project.findById(projectId)
       .populate({
         path: 'categories',
         select: 'name tasks',
         populate: {
           path: 'tasks',
-          select: 'title'
-        }
+          select: 'title',
+        },
       })
       .populate({
         path: 'channels',
-        select: 'name messages'
-      });
+        select: 'name messages',
+      })
+      .populate('creator', 'fullname avatar');
 
     if (!project) {
-      return NextResponse.json({ error: "Proyecto no encontrado" }, { status: 404 });
+      return NextResponse.json({ error: 'Proyecto no encontrado' }, { status: 404 });
     }
 
     return NextResponse.json(project);
   } catch (error) {
-    console.error("Error fetching project:", error);
+    console.error('Error al recuperar el proyecto:', error);
     return NextResponse.json(
-      { error: "Error al recuperar el proyecto" },
+      { error: 'Error al recuperar el proyecto' },
       { status: 500 }
     );
   }

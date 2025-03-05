@@ -1,5 +1,7 @@
 import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
 
+export type BackgroundType = 'color' | 'gradient' | 'image';
+
 export interface IProject extends Document {
   name: string;
   description: string;
@@ -9,6 +11,14 @@ export interface IProject extends Document {
   collaborators: Types.ObjectId[]; 
   createdAt: Date;
   updatedAt: Date;
+  backgroundType?: BackgroundType;
+  backgroundColor?: string;
+  backgroundGradient?: {
+    color1: string;
+    color2: string;
+    angle?: number;
+  };
+  backgroundImage?: string;
 }
 
 interface IProjectModel extends Model<IProject> {
@@ -49,6 +59,33 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
         ref: "Channel",
       },
     ],
+    backgroundType: {
+      type: String,
+      enum: ['color', 'gradient', 'image'],
+      default: 'color'
+    },
+    backgroundColor: {
+      type: String,
+      default: '#FFFFFF' 
+    },
+    backgroundGradient: {
+      color1: {
+        type: String,
+        default: '#FFFFFF'
+      },
+      color2: {
+        type: String,
+        default: '#F0F0F0'
+      },
+      angle: {
+        type: Number,
+        default: 45
+      }
+    },
+    backgroundImage: {
+      type: String,
+      default: null
+    },
   },
   {
     timestamps: true,

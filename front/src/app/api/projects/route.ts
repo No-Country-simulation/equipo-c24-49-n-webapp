@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose, { Types } from "mongoose";
-import Project, { IProject } from "@/models/project";
-import Category from "@/models/category";
+import { Project, Channel, Category } from "@/models";
 import { connectDB } from "@/libs/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./../auth/[...nextauth]/options";
@@ -39,6 +38,18 @@ async function createDefaultCategories(projectId: Types.ObjectId, creatorId: str
   });
 }
 
+
+function getBackgroundColor(backgroundValue: string): string {
+  switch(backgroundValue) {
+    case 'miel': return '#FDE68A'; // Amarillo dorado
+    case 'panal': return '#FCD34D'; // Amarillo ámbar
+    case 'nectar': return '#FEF3C7'; // Naranja claro
+    case 'polen': return '#FEF9C3'; // Amarillo muy claro
+    case 'cera': return '#FEF9C3'; // Crema claro
+    default: return '#FFFFFF';
+  }
+}
+
 export async function GET(request: Request) {
   try {
     await connectDB();
@@ -64,8 +75,7 @@ export async function GET(request: Request) {
         },
         {
           $or: [
-            { creator: new mongoose.Types.ObjectId(session.user._id) },
-            { channels: { $elemMatch: { $in: session.user.projects } } }
+            { creator: new mongoose.Types.ObjectId(session.user._id) }
           ]
         }
       ]
@@ -77,7 +87,14 @@ export async function GET(request: Request) {
     const projects = await Project.find(query)
       .populate('creator', 'fullname avatar')
       .populate('categories', 'name')
-      .populate('channels', 'name')
+      .populate({
+        path: 'channels',
+        select: 'name messages',
+        populate: {
+          path: 'messages',
+          select: 'content'
+        }
+      })
       .lean()
       .sort(sort)
       .skip((page - 1) * limit)
@@ -98,7 +115,6 @@ export async function GET(request: Request) {
 }
 
 
-
 export async function POST(request: Request) {
   try {
     await connectDB();
@@ -109,20 +125,17 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
+    
+    // Mapeo de los campos del componente al modelo
     const newProject = new Project({
-      ...data,
+      name: data.projectName,
+      description: '', 
       creator: new mongoose.Types.ObjectId(session.user._id),
-      backgroundType: data.backgroundType || 'color',
-      backgroundColor: data.backgroundColor || '#FFFFFF',
-      backgroundGradient: data.backgroundGradient ? {
-        color1: data.backgroundGradient.color1 || '#FFFFFF',
-        color2: data.backgroundGradient.color2 || '#F0F0F0',
-        angle: data.backgroundGradient.angle || 45
-      } : undefined,
-      backgroundImage: data.backgroundImage || null
+      backgroundType: 'color', 
+      backgroundColor: data.background ? getBackgroundColor(data.background) : '#FFFFFF',
+      visibility: data.visibility 
     });
 
-    // Guardar el proyecto primero
     await newProject.save();
 
     // Crear categorías por defecto para este proyecto
@@ -138,11 +151,9 @@ export async function POST(request: Request) {
       { new: true }
     );
 
-    // Obtener el proyecto actualizado
     const updatedProject = await Project.findById(newProject._id)
       .populate('creator', 'fullname avatar')
       .populate('categories', 'name')
-      .populate('channels', 'name')
       .lean();
 
     return NextResponse.json(updatedProject, { status: 201 });

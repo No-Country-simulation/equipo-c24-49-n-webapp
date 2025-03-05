@@ -19,6 +19,7 @@ export interface IProject extends Document {
     angle?: number;
   };
   backgroundImage?: string;
+  visibility?: 'privado' | 'publico' | 'equipo';
 }
 
 interface IProjectModel extends Model<IProject> {
@@ -34,7 +35,7 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
     },
     description: {
       type: String,
-      required: [true, "Project description is required"],
+      default: 'Agregar descripción', 
     },
     creator: {
       type: Schema.Types.ObjectId,
@@ -85,6 +86,11 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
     backgroundImage: {
       type: String,
       default: null
+    },
+    visibility: {
+      type: String,
+      enum: ['privado', 'publico', 'equipo'],
+      default: 'privado'
     },
   },
   {

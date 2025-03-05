@@ -92,7 +92,7 @@ export async function GET(request: Request) {
         select: 'name messages',
         populate: {
           path: 'messages',
-          select: 'content' g
+          select: 'content'
         }
       })
       .lean()
@@ -129,11 +129,11 @@ export async function POST(request: Request) {
     // Mapeo de los campos del componente al modelo
     const newProject = new Project({
       name: data.projectName,
-      description: '', // Agregar un campo de descripción en el componente
+      description: '', 
       creator: new mongoose.Types.ObjectId(session.user._id),
-      backgroundType: 'color', // Por defecto
+      backgroundType: 'color', 
       backgroundColor: data.background ? getBackgroundColor(data.background) : '#FFFFFF',
-      visibility: data.visibility // Añadir un campo de visibilidad al modelo si no existe
+      visibility: data.visibility 
     });
 
     await newProject.save();

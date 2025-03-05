@@ -240,3 +240,124 @@ export async function DELETE(request: Request) {
     }, { status: 500 });
   }
 }
+
+/**
+ * @swagger
+ * /api/projects:
+ *   get:
+ *     summary: Obtiene una lista de proyectos
+ *     tags: [Project]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Texto de búsqueda para filtrar proyectos por nombre o descripción
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *         description: Campo por el cual ordenar los resultados
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Número de página para la paginación
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Cantidad de proyectos por página
+ *     responses:
+ *       200:
+ *         description: Lista de proyectos obtenida exitosamente
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error del servidor
+ *
+ *   post:
+ *     summary: Crea un nuevo proyecto
+ *     tags: [Project]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               projectName:
+ *                 type: string
+ *               background:
+ *                 type: string
+ *               visibility:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Proyecto creado exitosamente
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error del servidor
+ *
+ *   put:
+ *     summary: Actualiza un proyecto existente
+ *     tags: [Project]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               backgroundType:
+ *                 type: string
+ *               backgroundColor:
+ *                 type: string
+ *               backgroundGradient:
+ *                 type: object
+ *                 properties:
+ *                   color1:
+ *                     type: string
+ *                   color2:
+ *                     type: string
+ *                   angle:
+ *                     type: number
+ *               backgroundImage:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Proyecto actualizado exitosamente
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: No tienes permiso para editar este proyecto
+ *       500:
+ *         description: Error del servidor
+ *
+ *   delete:
+ *     summary: Elimina un proyecto
+ *     tags: [Project]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Proyecto eliminado exitosamente
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: No tienes permiso para eliminar este proyecto
+ *       500:
+ *         description: Error del servidor
+ */

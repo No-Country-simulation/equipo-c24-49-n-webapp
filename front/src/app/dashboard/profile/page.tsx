@@ -1,41 +1,58 @@
-"use client";
-
-import { signOut } from "next-auth/react";
+"use client"
+import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { UploadButton } from "@/utils/uploadthing";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/AuthAwareLayout"; 
 
 const ProfilePage = () => {
-  const { user, isLoading } = useAuth();
+  const { data: session, update } = useSession(); // <-- Agregamos `update`
   const router = useRouter();
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const user = session?.user;
+ console.log(user)
+  // Estado local para evitar flickering de la imagen
+  const [imageUrl, setImageUrl] = useState<string | null>(user?.avatar || null);
 
-  // Usar directamente la información del usuario del contexto
-  const userImage = user?.avatar || "/user-icon.svg";
-
-  // Manejar el guardado de la imagen en la base de datos
+  // Función para actualizar el avatar en la BD y la sesión
   const saveAvatar = async (imageUrl: string) => {
-    try {
-      const response = await fetch("/api/update-avatar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user?.email, avatar: imageUrl }),
-      });
-
-      if (!response.ok) throw new Error("Error al guardar la imagen en la base de datos");
-
-      toast.success("Avatar actualizado con éxito");
-      setImageUrl(imageUrl);
-    } catch (error) {
-      toast.error("No se pudo guardar la imagen");
-      console.error(error);
-    }
+    // Muestra el toast en estado de carga
+    const promise = new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch("/api/update-avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user?.email, avatar: imageUrl }),
+        });
+  
+        if (!response.ok) throw new Error("Error al guardar la imagen en la base de datos");
+  
+        // 🔥 Actualizar la sesión en NextAuth
+        await update({ avatar: imageUrl });
+  
+        // 🔥 Forzar recarga de la página (opcional, pero asegura que se vea el cambio)
+        router.refresh();
+  
+        // Actualizar el estado local
+        setImageUrl(imageUrl);
+  
+        resolve("Avatar actualizado con éxito");
+      } catch (error) {
+        console.error(error);
+        reject();
+      }
+    });
+  
+    // Ejecutar el toast con la promesa
+    toast.promise(promise, {
+      loading: "Actualizando avatar...",
+      success: "Avatar actualizado con éxito",
+      error: "No se pudo actualizar la imagen",
+    });
   };
+  
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="">
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="card bg-base-100 shadow-lg w-full max-w-2xl">
           <h1 className="card-title mx-auto text-3xl text-primary mb-2">Perfil de Usuario</h1>
@@ -73,14 +90,12 @@ const ProfilePage = () => {
             {/* Imagen de perfil */}
             <div className="flex flex-col items-center gap-4">
               <img
-                src={userImage}
+                src={ user?.avatar || imageUrl || "/user-icon.svg"} // 🔥 Usa `imageUrl` para evitar delay visual
                 alt="Imagen de perfil"
                 className="w-48 h-48 rounded-full object-cover border-4 border-primary"
               />
               <div className="mt-4">
-                {/* Botón de UploadThing */}
                 <UploadButton
-                  className="bg-red-200"
                   endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
                     if (res?.[0]?.url) {

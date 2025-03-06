@@ -10,7 +10,7 @@ const ProfilePage = () => {
   const { data: session, update } = useSession(); // <-- Agregamos `update`
   const router = useRouter();
   const user = session?.user;
- console.log(user)
+//  console.log(user)
   // Estado local para evitar flickering de la imagen
   const [imageUrl, setImageUrl] = useState<string | null>(user?.avatar || null);
 

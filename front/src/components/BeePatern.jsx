@@ -9,7 +9,7 @@ const BeePatern = () => {
     }
   return (
     <div className="absolute w-full bottom-0 -z-10 overflow-hidden pointer-events-none">
-          <Image src="/bee-pattern.svg" className="w-full object-cover" />
+          <Image alt="bee patern" src="/bee-pattern.svg" className="w-full object-cover" />
         </div>
   )
 }

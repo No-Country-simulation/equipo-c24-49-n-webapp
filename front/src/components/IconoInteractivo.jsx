@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 
 const IconoInteractivo = ({ tipo }) => {
   const [activo, setActivo] = useState(false);
@@ -34,7 +35,7 @@ const IconoInteractivo = ({ tipo }) => {
     <div className="relative">
       {tipo === "fotoPerfil" ? (
         // Mostrar la imagen de perfil del usuario si está disponible
-        <img
+        <Image
           src={session?.user?.avatar || iconos[tipo].inactivo} // Usar la imagen de perfil del usuario
           alt={iconos[tipo].alt}
           onClick={() => setActivo(!activo)}
@@ -42,7 +43,7 @@ const IconoInteractivo = ({ tipo }) => {
         />
       ) : (
         // Mostrar el ícono predeterminado para otros tipos
-        <img
+        <Image
           src={activo ? iconos[tipo].activo : iconos[tipo].inactivo}
           alt={iconos[tipo].alt}
           onClick={() => setActivo(!activo)}

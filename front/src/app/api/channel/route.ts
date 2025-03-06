@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import Channel, { IChannel } from "@/models/channel";
 import Project from "@/models/project";
 import { connectDB } from "@/libs/mongodb";
@@ -75,7 +74,46 @@ export async function GET(request: Request) {
     );
   }
 }
-
+/**
+ * @swagger
+ * /api/channel:
+ *   get:
+ *     summary: Obtiene la lista de canales de un proyecto
+ *     tags: [Channel]
+ *     parameters:
+ *       - in: query
+ *         name: projectId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del proyecto al que pertenecen los canales
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Nombre del canal a buscar
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Número de página
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Cantidad de canales por página
+ *     responses:
+ *       200:
+ *         description: Lista de canales obtenida exitosamente
+ *       401:
+ *         description: No autorizado
+ *       400:
+ *         description: Se requiere projectId
+ *       404:
+ *         description: Proyecto no encontrado o sin acceso
+ *       500:
+ *         description: Error al recuperar canales
+ */
 export async function POST(request: Request) {
   try {
     await connectDB();
@@ -135,7 +173,35 @@ export async function POST(request: Request) {
     );
   }
 }
-
+/**
+ * @swagger
+ * /api/channel:
+ *   post:
+ *     summary: Crea un nuevo canal en un proyecto
+ *     tags: [Channel]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               projectId:
+ *                 type: string
+ *                 description: ID del proyecto al que pertenece el canal
+ *               name:
+ *                 type: string
+ *                 description: Nombre del canal
+ *     responses:
+ *       201:
+ *         description: Canal creado correctamente
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: No tienes permiso para crear un canal en este proyecto
+ *       500:
+ *         description: Error al crear el canal
+ */
 export async function PUT(request: Request) {
   try {
     await connectDB();
@@ -159,7 +225,6 @@ export async function PUT(request: Request) {
         { status: 404 }
       );
     }
-
     const project = channel.project as any;
     const hasPermission =
       project.creator.toString() === session.user._id ||
@@ -195,7 +260,37 @@ export async function PUT(request: Request) {
     );
   }
 }
-
+/**
+ * @swagger
+ * /api/channel:
+ *   put:
+ *     summary: Actualiza un canal existente
+ *     tags: [Channel]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *                 description: ID del canal a actualizar
+ *               name:
+ *                 type: string
+ *                 description: Nuevo nombre del canal
+ *     responses:
+ *       200:
+ *         description: Canal actualizado correctamente
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: No tienes permiso para actualizar este canal
+ *       404:
+ *         description: Canal no encontrado
+ *       500:
+ *         description: Error al actualizar el canal
+ */
 export async function DELETE(request: Request) {
   try {
     await connectDB();
@@ -219,7 +314,6 @@ export async function DELETE(request: Request) {
         { status: 404 }
       );
     }
-
     const project = channel.project as any;
     const hasPermission =
       project.creator.toString() === session.user._id ||
@@ -258,38 +352,6 @@ export async function DELETE(request: Request) {
     );
   }
 }
-
-/**
- * @swagger
- * /api/channel:
- *   put:
- *     summary: Actualiza un canal existente
- *     tags: [Channel]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               _id:
- *                 type: string
- *                 description: ID del canal a actualizar
- *               name:
- *                 type: string
- *                 description: Nuevo nombre del canal
- *     responses:
- *       200:
- *         description: Canal actualizado correctamente
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para actualizar este canal
- *       404:
- *         description: Canal no encontrado
- *       500:
- *         description: Error al actualizar el canal
- */
 
 /**
  * @swagger

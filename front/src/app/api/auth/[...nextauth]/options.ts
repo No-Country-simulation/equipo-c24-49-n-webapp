@@ -1,9 +1,10 @@
 /**
  * Configuración de autenticación para NextAuth.js
- * 
+ *
  * Esta configuración permite la autenticación mediante credenciales (email y contraseña)
  * y Google OAuth, usando una base de datos MongoDB para almacenar los usuarios.
  */
+import { Types } from "mongoose";
 
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -37,7 +38,7 @@ export const authOptions: AuthOptions = {
        * Función de autorización para el proveedor de credenciales
        * Verifica si el usuario existe y si la contraseña es correcta
        */
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         if (!credentials) {
           throw new Error("No credentials provided");
         }
@@ -60,7 +61,10 @@ export const authOptions: AuthOptions = {
             throw new Error("Invalid credentials");
           }
 
-          const passwordMatch = await bcrypt.compare(password, userFound.password);
+          const passwordMatch = await bcrypt.compare(
+            password,
+            userFound.password
+          );
 
           if (!passwordMatch) {
             throw new Error("Invalid credentials");
@@ -75,7 +79,9 @@ export const authOptions: AuthOptions = {
             image: userFound.avatar,
             avatar: userFound.avatar,
             role: userFound.role,
-            projects: userFound.projects.map((p: any) => p.toString()),
+            projects: userFound.projects.map((p: Types.ObjectId) =>
+              p.toString()
+            ),
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
           };
@@ -111,12 +117,12 @@ export const authOptions: AuthOptions = {
         token.createdAt = user.createdAt;
         token.updatedAt = user.updatedAt;
       }
-  
+
       // 🔥 Si el usuario actualiza la sesión manualmente (ej: cambio de avatar)
       if (trigger === "update" && session?.avatar) {
         token.avatar = session.avatar; // Actualiza el avatar en el token
       }
-  
+
       return token;
     },
     /**

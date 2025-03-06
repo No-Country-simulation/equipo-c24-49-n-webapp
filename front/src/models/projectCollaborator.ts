@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
+import { Schema, model, models, Document, Model, Types } from "mongoose";
 
 export interface IProjectCollaborator extends Document {
   user: Types.ObjectId;
@@ -7,7 +7,9 @@ export interface IProjectCollaborator extends Document {
   joinedAt: Date;
 }
 
-interface IProjectCollaboratorModel extends Model<IProjectCollaborator> {}
+interface IProjectCollaboratorModel extends Model<IProjectCollaborator> {
+  __dummy?: never;
+}
 
 const ProjectCollaboratorSchema = new Schema<IProjectCollaborator, IProjectCollaboratorModel>(
   {

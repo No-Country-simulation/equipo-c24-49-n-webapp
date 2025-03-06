@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose, { Types } from "mongoose";
-import { Project, Channel, Category } from "@/models";
+import { Project, Category } from "@/models";
 import { connectDB } from "@/libs/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./../auth/[...nextauth]/options";

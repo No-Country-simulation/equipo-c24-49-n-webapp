@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import Category, { ICategory } from "@/models/category";
 import Project from "@/models/project";
 import { connectDB } from "@/libs/mongodb";
@@ -159,7 +158,6 @@ export async function PUT(request: Request) {
         { status: 404 }
       );
     }
-
     const project = category.project as any;
     const hasPermission =
       project.creator.toString() === session.user._id ||
@@ -219,7 +217,6 @@ export async function DELETE(request: Request) {
         { status: 404 }
       );
     }
-
     const project = category.project as any;
     const hasPermission =
       project.creator.toString() === session.user._id ||

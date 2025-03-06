@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import Comment, { IComment } from "@/models/comment";
 import Task from "@/models/task";
-import Project from "@/models/project";
 import { connectDB } from "@/libs/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./../auth/[...nextauth]/options";
@@ -44,7 +42,6 @@ export async function GET(request: Request) {
         { status: 404 }
       );
     }
-
     const project = (task.category as any).project;
     const hasAccess =
       project.collaborators.some(
@@ -116,7 +113,6 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
-
     const project = (task.category as any).project;
     const hasAccess =
       project.collaborators.some(
@@ -268,7 +264,6 @@ async function checkProjectAdmin(taskId: string, userId: string) {
       select: "creator collaborators",
     },
   });
-
   const project = (task?.category as any)?.project;
 
   return (

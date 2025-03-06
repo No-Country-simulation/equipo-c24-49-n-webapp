@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import Notification, { INotification } from "@/models/notification";
 import { connectDB } from "@/libs/mongodb";
 import { getServerSession } from "next-auth/next";

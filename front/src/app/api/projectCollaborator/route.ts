@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import ProjectCollaborator from "@/models/projectCollaborator";
 import Project from "@/models/project";
 import User from "@/models/user";
@@ -84,6 +83,46 @@ export async function GET(request: Request) {
     );
   }
 }
+/**
+ * @swagger
+ * /api/collaborators:
+ *   get:
+ *     summary: Obtiene la lista de colaboradores de un proyecto
+ *     tags: [Collaborator]
+ *     parameters:
+ *       - in: query
+ *         name: projectId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del proyecto
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Filtra colaboradores por nombre o email
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Número de página para la paginación
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Cantidad de colaboradores por página
+ *     responses:
+ *       200:
+ *         description: Lista de colaboradores obtenida correctamente
+ *       400:
+ *         description: Se requiere projectId
+ *       401:
+ *         description: No autorizado
+ *       404:
+ *         description: Proyecto no encontrado o sin acceso
+ *       500:
+ *         description: Error al recuperar colaboradores
+ */
 
 export async function POST(request: Request) {
   try {
@@ -168,6 +207,44 @@ export async function POST(request: Request) {
   }
 }
 
+/**
+ * @swagger
+ * /api/collaborators:
+ *   post:
+ *     summary: Agrega un colaborador a un proyecto
+ *     tags: [Collaborator]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               projectId:
+ *                 type: string
+ *                 description: ID del proyecto
+ *               userId:
+ *                 type: string
+ *                 description: ID del usuario a agregar
+ *               role:
+ *                 type: string
+ *                 enum: [admin, editor, viewer]
+ *                 default: viewer
+ *                 description: Rol del colaborador en el proyecto
+ *     responses:
+ *       201:
+ *         description: Colaborador agregado exitosamente
+ *       400:
+ *         description: El usuario ya es colaborador del proyecto
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: No tienes permiso para agregar colaboradores
+ *       404:
+ *         description: Usuario o proyecto no encontrado
+ *       500:
+ *         description: Error al agregar colaborador
+ */
 export async function PUT(request: Request) {
   try {
     await connectDB();
@@ -242,6 +319,40 @@ export async function PUT(request: Request) {
     );
   }
 }
+/**
+ * @swagger
+ * /api/collaborators:
+ *   put:
+ *     summary: Actualiza el rol de un colaborador en un proyecto
+ *     tags: [Collaborator]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                 type: string
+ *                 description: ID del colaborador
+ *               role:
+ *                 type: string
+ *                 enum: [admin, editor, viewer]
+ *                 description: Nuevo rol del colaborador
+ *     responses:
+ *       200:
+ *         description: Colaborador actualizado exitosamente
+ *       400:
+ *         description: Debe haber al menos un administrador en el proyecto
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: No tienes permiso para modificar roles
+ *       404:
+ *         description: Colaborador no encontrado
+ *       500:
+ *         description: Error al actualizar colaborador
+ */
 
 export async function DELETE(request: Request) {
   try {
@@ -266,7 +377,6 @@ export async function DELETE(request: Request) {
         { status: 404 }
       );
     }
-
     const project = collaboration.project as any;
     const isCreator = project.creator.toString() === session.user._id;
     const isAdmin = project.collaborators.some(
@@ -329,122 +439,6 @@ export async function DELETE(request: Request) {
     );
   }
 }
-
-/**
- * @swagger
- * /api/collaborators:
- *   get:
- *     summary: Obtiene la lista de colaboradores de un proyecto
- *     tags: [Collaborator]
- *     parameters:
- *       - in: query
- *         name: projectId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID del proyecto
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Filtra colaboradores por nombre o email
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *         description: Número de página para la paginación
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *         description: Cantidad de colaboradores por página
- *     responses:
- *       200:
- *         description: Lista de colaboradores obtenida correctamente
- *       400:
- *         description: Se requiere projectId
- *       401:
- *         description: No autorizado
- *       404:
- *         description: Proyecto no encontrado o sin acceso
- *       500:
- *         description: Error al recuperar colaboradores
- */
-
-/**
- * @swagger
- * /api/collaborators:
- *   post:
- *     summary: Agrega un colaborador a un proyecto
- *     tags: [Collaborator]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               projectId:
- *                 type: string
- *                 description: ID del proyecto
- *               userId:
- *                 type: string
- *                 description: ID del usuario a agregar
- *               role:
- *                 type: string
- *                 enum: [admin, editor, viewer]
- *                 default: viewer
- *                 description: Rol del colaborador en el proyecto
- *     responses:
- *       201:
- *         description: Colaborador agregado exitosamente
- *       400:
- *         description: El usuario ya es colaborador del proyecto
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para agregar colaboradores
- *       404:
- *         description: Usuario o proyecto no encontrado
- *       500:
- *         description: Error al agregar colaborador
- */
-
-/**
- * @swagger
- * /api/collaborators:
- *   put:
- *     summary: Actualiza el rol de un colaborador en un proyecto
- *     tags: [Collaborator]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               _id:
- *                 type: string
- *                 description: ID del colaborador
- *               role:
- *                 type: string
- *                 enum: [admin, editor, viewer]
- *                 description: Nuevo rol del colaborador
- *     responses:
- *       200:
- *         description: Colaborador actualizado exitosamente
- *       400:
- *         description: Debe haber al menos un administrador en el proyecto
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para modificar roles
- *       404:
- *         description: Colaborador no encontrado
- *       500:
- *         description: Error al actualizar colaborador
- */
-
 /**
  * @swagger
  * /api/collaborators:

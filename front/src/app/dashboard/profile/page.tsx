@@ -4,6 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { UploadButton } from "@/utils/uploadthing";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const ProfilePage = () => {
   const { data: session, update } = useSession(); // <-- Agregamos `update`
@@ -14,32 +15,32 @@ const ProfilePage = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(user?.avatar || null);
 
   // Función para actualizar el avatar en la BD y la sesión
-  const saveAvatar = async (imageUrl: string) => {
+  const saveAvatar = (imageUrl: string) => {
     // Muestra el toast en estado de carga
-    const promise = new Promise(async (resolve, reject) => {
-      try {
-        const response = await fetch("/api/update-avatar", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user?.email, avatar: imageUrl }),
+    const promise = new Promise((resolve, reject) => {
+      fetch("/api/update-avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email, avatar: imageUrl }),
+      })
+        .then(async (response) => {
+          if (!response.ok) throw new Error("Error al guardar la imagen en la base de datos");
+  
+          // 🔥 Actualizar la sesión en NextAuth
+          await update({ avatar: imageUrl });
+  
+          // 🔥 Forzar recarga de la página (opcional, pero asegura que se vea el cambio)
+          router.refresh();
+  
+          // Actualizar el estado local
+          setImageUrl(imageUrl);
+  
+          resolve("Avatar actualizado con éxito");
+        })
+        .catch((error) => {
+          console.error(error);
+          reject();
         });
-  
-        if (!response.ok) throw new Error("Error al guardar la imagen en la base de datos");
-  
-        // 🔥 Actualizar la sesión en NextAuth
-        await update({ avatar: imageUrl });
-  
-        // 🔥 Forzar recarga de la página (opcional, pero asegura que se vea el cambio)
-        router.refresh();
-  
-        // Actualizar el estado local
-        setImageUrl(imageUrl);
-  
-        resolve("Avatar actualizado con éxito");
-      } catch (error) {
-        console.error(error);
-        reject();
-      }
     });
   
     // Ejecutar el toast con la promesa
@@ -89,7 +90,7 @@ const ProfilePage = () => {
             </div>
             {/* Imagen de perfil */}
             <div className="flex flex-col items-center gap-4">
-              <img
+              <Image
                 src={ user?.avatar || imageUrl || "/user-icon.svg"} // 🔥 Usa `imageUrl` para evitar delay visual
                 alt="Imagen de perfil"
                 className="w-48 h-48 rounded-full object-cover border-4 border-primary"

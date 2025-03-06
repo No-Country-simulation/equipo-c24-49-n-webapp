@@ -1,8 +1,8 @@
 "use client"
 
-import NavBarDashboard from "@/components/NavBarDashboard";
 import { kodchasan } from "@/components/ui/fonts";
 import DashboardCard from "@/components/UserCard";
+import Image from "next/image";
 
 export default function Page() {
   return (
@@ -16,8 +16,8 @@ export default function Page() {
       </section>
 
       <section className="flex flex-row justify-between ml-16 mt-10 mr-14 mb-10">
-        <img src="./ejemplo-progreso.svg" alt="Imagen ejemplo progreso"/>
-        <img src="./ejemplo-calendario.svg" alt="Imagen ejemplo calendario"/>
+        <Image src="./ejemplo-progreso.svg" alt="Imagen ejemplo progreso"/>
+        <Image src="./ejemplo-calendario.svg" alt="Imagen ejemplo calendario"/>
       </section>
     </div>
   )

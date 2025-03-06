@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import BeePatern from "@/components/BeePatern";
 import Providers from "./Providers";
 import { Toaster } from "react-hot-toast";
-import { AuthAwareLayout } from "@/components/AuthAwareLayout";
+// import { AuthAwareLayout } from "@/components/AuthAwareLayout";
 import { usePathname } from "next/navigation";
 
 const kodchasan = Kodchasan({

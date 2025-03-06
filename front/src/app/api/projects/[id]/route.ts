@@ -15,10 +15,12 @@ export async function GET(
     let projectId;
     try {
       projectId = new mongoose.Types.ObjectId(id);
-    } catch (error) {
+    } catch (err) {
+      console.log(err)
       return NextResponse.json(
         { error: "ID de proyecto inválido" },
-        { status: 400 }
+        { status: 400 },
+
       );
     }
 
@@ -77,59 +79,4 @@ export async function GET(
  *       500:
  *         description: Error al recuperar el proyecto
  *
- *   put:
- *     summary: Actualiza un proyecto por ID
- *     tags: [Project]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del proyecto a actualizar
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Nuevo nombre del proyecto
- *               backgroundColor:
- *                 type: string
- *                 description: Color de fondo del proyecto
- *               visibility:
- *                 type: string
- *                 description: Visibilidad del proyecto
- *     responses:
- *       200:
- *         description: Proyecto actualizado exitosamente
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para actualizar este proyecto
- *       500:
- *         description: Error al actualizar el proyecto
- *
- *   delete:
- *     summary: Elimina un proyecto por ID
- *     tags: [Project]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del proyecto a eliminar
- *     responses:
- *       200:
- *         description: Proyecto eliminado exitosamente
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para eliminar este proyecto
- *       500:
- *         description: Error al eliminar el proyecto
  */

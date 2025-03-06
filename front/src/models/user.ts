@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models, Document, Model, Types } from "mongoose";
+import  { Schema, model, models, Document, Model, Types } from "mongoose";
 
 // Definir la interfaz del usuario
 export interface IUser extends Document {
@@ -27,7 +27,7 @@ const UserSchema = new Schema<IUser, IUserModel>(
       trim: true,
       lowercase: true,
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*\.\w{2,3}$/,
         "Please provide a valid email address",
       ],
     },

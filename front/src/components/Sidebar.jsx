@@ -1,5 +1,6 @@
 
 import Image from "next/image";
+import Link from "next/link";
 
 const Sidebar = () => {
     return (
@@ -10,7 +11,7 @@ const Sidebar = () => {
                         href="/dashboard/"
                         className="btn btn-link flex items-center text-gray-900 gap-2 no-underline hover:no-underline active:no-underline"
                     >
-                        <img src="/logo.svg" alt="Logo" className="w-12 h-12 object-contain" />
+                        <Image src="/logo.svg" alt="Logo" className="w-12 h-12 object-contain" />
                         <span className="text-[24px] font-bold">PANAL</span>
                     </a>
                 </li>
@@ -26,7 +27,7 @@ const Sidebar = () => {
                     </a>
                 </li>
                 <li className="flex flex-row items-center gap-3 pl-[1.8rem]">
-                    <a
+                    <Link
                         href="/dashboard/projects" className="btn btn-link flex items-center text-gray-900 gap-2 no-underline hover:no-underline active:no-underline" >
                         <Image
                             src="/tareas-icon.svg"
@@ -35,7 +36,7 @@ const Sidebar = () => {
                             height={24}
                         />
                         Proyectos
-                    </a>
+                    </Link>
                 </li>
                 <li className="flex flex-row items-center gap-3 pl-[3.1875rem]">
                     <Image

@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from "next/link";
 import { useParams, useRouter } from 'next/navigation';
-import { MoreVertical, Plus, UserPlus, ListPlus, ArrowLeft } from "lucide-react";
+import { MoreVertical, Plus, UserPlus, ListPlus } from "lucide-react";
 
 interface Task {
     id: string;

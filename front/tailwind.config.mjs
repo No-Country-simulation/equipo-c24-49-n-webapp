@@ -14,7 +14,7 @@ export default {
 					"primary-content": "#FEFEFE",
           secondary: "#FDEFAE",
 					"": "#3D2C00",
-          accent: "#4ABCE1",
+          accent: "#3d2c00",
 					"accent-content": "#FEFEFE",
           neutral: "#44403c",
           "base-100": "#FEFEFE",

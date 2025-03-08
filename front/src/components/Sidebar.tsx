@@ -69,8 +69,8 @@ const Sidebar = () => {
     <aside
     onClick={expandSidebar}
       ref={sidebarRef}
-      className={`flex flex-col min-h-screen bg-yellow-200 backdrop-blur-md rounded-tr-[3rem] rounded-br-[3rem] transition-all duration-300 ${
-        isExpanded ? "max-w-60 min-w-60" : "max-w-20 min-w-20"
+      className={`flex flex-col min-h-screen bg-secondary backdrop-blur-md rounded-tr-[3rem] rounded-br-[3rem] transition-all duration-300 ${
+        isExpanded ? "max-w-60 min-w-60 mr-6" : "max-w-20 min-w-20 mr-20"
       }`}
     >
       <ul className="flex flex-col flex-grow gap-8 font-normal text-base relative">
@@ -126,7 +126,7 @@ const Sidebar = () => {
                       </li>
                     ))
                   ) : (
-                    <li className="text-gray-500">No hay proyectos recientes</li>
+                    <span className="loading loading-ring loading-lg"></span>
                   )}
                 </ul>
               )}

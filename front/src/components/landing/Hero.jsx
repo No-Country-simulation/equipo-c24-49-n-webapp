@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 const Hero = () => {
@@ -26,7 +25,7 @@ const Hero = () => {
           {/* Sección de imagen (7/12 en pantallas grandes) */}
           <div className="relative flex justify-center mt-10 md:mt-0 items-center md:col-span-7 right-0">
             <div className="absolute w-[85%] sm:w-[400px] md:w-[685px] h-[250px] sm:h-[350px] md:h-[471px] bg-pink-50 rounded-3xl shadow-lg -z-20"></div>
-            <Image src="/images/dashboard.webp" alt="Panal" className="w-[90%] sm:w-[350px] md:w-[620px] object-contain relative z-30" />
+            <img src="/images/dashboard.webp" alt="Panal" className="w-[90%] sm:w-[350px] md:w-[620px] object-contain relative z-30" />
           </div>
         </div>
       </div>

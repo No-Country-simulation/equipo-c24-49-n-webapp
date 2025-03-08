@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 
 const SearchBar = () => {
@@ -10,7 +9,7 @@ const SearchBar = () => {
   return (
     <div className="relative flex transition-all duration-200">
       <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center">
-        <Image src="/search-icon.svg" alt="Buscar" className="w-4 h-4" />
+        <img src="/search-icon.svg" alt="Buscar" className="w-4 h-4" />
       </div>
 
       <input

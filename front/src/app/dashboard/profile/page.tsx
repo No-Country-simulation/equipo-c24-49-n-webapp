@@ -4,7 +4,6 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { UploadButton } from "@/utils/uploadthing";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 const ProfilePage = () => {
   const { data: session, update } = useSession(); // <-- Agregamos `update`
@@ -90,7 +89,7 @@ const ProfilePage = () => {
             </div>
             {/* Imagen de perfil */}
             <div className="flex flex-col items-center gap-4">
-              <Image
+              <img
                 src={ user?.avatar || imageUrl || "/user-icon.svg"} // 🔥 Usa `imageUrl` para evitar delay visual
                 alt="Imagen de perfil"
                 className="w-48 h-48 rounded-full object-cover border-4 border-primary"

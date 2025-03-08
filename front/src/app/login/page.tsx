@@ -3,7 +3,6 @@ import { useSession } from "next-auth/react";
 import { FormEvent, useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -69,7 +68,7 @@ const Login = () => {
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
                     onClick={() => signIn("google")}
                   >
-                    <Image
+                    <img
                       src="/google-icon.svg"
                       className="w-5 h-5"
                       alt="Google"
@@ -81,7 +80,7 @@ const Login = () => {
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
                     onClick={() => signIn("apple")}
                   >
-                    <Image
+                    <img
                       src="/apple-icon.svg"
                       className="w-5 h-5"
                       alt="Apple"
@@ -146,7 +145,7 @@ const Login = () => {
        
         <div className="flex relative items-center justify-center">
           <div className="absolute flex items-center justify-center inset-0 -z-10">
-            <Image
+            <img
               src="/poligonos-fondo.svg"
               alt="Patrón de fondo"
               className="w-fit h-fit object-cover"
@@ -154,7 +153,7 @@ const Login = () => {
           </div>
 
           <div className="relative z-10 max-w-xs lg:max-w-md p-8">
-            <Image
+            <img
               src="/abejita.svg"
               alt="Ilustración principal"
               className="w-full h-auto animate-float"
@@ -163,7 +162,7 @@ const Login = () => {
         </div>
 
         <div className="absolute flex justify-center sm:-bottom-full bottom-0 sm:inset-0 -z-10">
-          <Image src="/bee-pattern.svg" alt="Patrón de abejas" />
+          <img src="/bee-pattern.svg" alt="Patrón de abejas" />
         </div>
       </div>
     </div>

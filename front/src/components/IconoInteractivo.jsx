@@ -35,7 +35,7 @@ const IconoInteractivo = ({ tipo }) => {
     <div className="relative">
       {tipo === "fotoPerfil" ? (
         // Mostrar la imagen de perfil del usuario si está disponible
-        <Image
+        <img
           src={session?.user?.avatar || iconos[tipo].inactivo} // Usar la imagen de perfil del usuario
           alt={iconos[tipo].alt}
           onClick={() => setActivo(!activo)}
@@ -43,7 +43,7 @@ const IconoInteractivo = ({ tipo }) => {
         />
       ) : (
         // Mostrar el ícono predeterminado para otros tipos
-        <Image
+        <img
           src={activo ? iconos[tipo].activo : iconos[tipo].inactivo}
           alt={iconos[tipo].alt}
           onClick={() => setActivo(!activo)}

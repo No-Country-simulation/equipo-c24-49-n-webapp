@@ -1,11 +1,331 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "API de Categorías",
+    "title": "API de Proyectos y Canales",
     "version": "1.0.0",
-    "description": "API para gestionar categorías de proyectos"
+    "description": "API para gestionar proyectos, canales y autenticación"
   },
   "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "summary": "Registra un nuevo usuario",
+        "description": "Crea una cuenta de usuario con correo, contraseña y otros detalles.",
+        "tags": ["Autenticación"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "fullname"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "usuario@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "example": "securepassword123"
+                  },
+                  "fullname": { "type": "string", "example": "Juan Pérez" },
+                  "avatar": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "https://example.com/avatar.jpg"
+                  },
+                  "role": { "type": "string", "example": "user" },
+                  "projects": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": ["projectId1", "projectId2"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuario registrado correctamente" },
+          "400": { "description": "Error de validación" },
+          "409": { "description": "El correo ya está registrado" },
+          "500": { "description": "Error interno del servidor" }
+        }
+      }
+    },
+    "/api/tasks": {
+      "get": {
+        "summary": "Obtiene una lista de tareas filtradas",
+        "tags": ["Task"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "Texto de búsqueda en título o descripción"
+          },
+          {
+            "in": "query",
+            "name": "categoryId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "ID de la categoría"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer" },
+            "description": "Número de página"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer" },
+            "description": "Número de tareas por página"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": { "type": "string" },
+            "description": "Estado de la tarea"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de tareas obtenida correctamente" },
+          "400": { "description": "Se requiere categoryId" },
+          "401": { "description": "No autorizado" },
+          "403": { "description": "Acceso no autorizado" },
+          "404": { "description": "Categoría no encontrada" },
+          "500": { "description": "Error al recuperar tareas" }
+        }
+      },
+      "post": {
+        "summary": "Crea una nueva tarea",
+        "tags": ["Task"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "category": { "type": "string" },
+                  "dueDate": { "type": "string", "format": "date-time" },
+                  "assignedTo": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Tarea creada exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "403": { "description": "No tienes permiso para crear tareas" },
+          "404": { "description": "Categoría no encontrada" },
+          "500": { "description": "Error al crear la tarea" }
+        }
+      },
+      "put": {
+        "summary": "Actualiza una tarea existente",
+        "tags": ["Task"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" },
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "status": { "type": "string" },
+                  "dueDate": { "type": "string", "format": "date-time" },
+                  "assignedTo": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Tarea actualizada exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para actualizar esta tarea"
+          },
+          "404": { "description": "Tarea no encontrada" },
+          "500": { "description": "Error al actualizar la tarea" }
+        }
+      },
+      "delete": {
+        "summary": "Elimina una tarea existente",
+        "tags": ["Task"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID de la tarea a eliminar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Tarea eliminada exitosamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para eliminar esta tarea"
+          },
+          "404": { "description": "Tarea no encontrada" },
+          "500": { "description": "Error al eliminar la tarea" }
+        }
+      }
+    },
+    "/api/channel": {
+      "get": {
+        "summary": "Obtiene la lista de canales de un proyecto",
+        "tags": ["Channel"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "ID del proyecto al que pertenecen los canales"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "Nombre del canal a buscar"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer" },
+            "description": "Número de página"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer" },
+            "description": "Cantidad de canales por página"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de canales obtenida exitosamente" },
+          "401": { "description": "No autorizado" },
+          "400": { "description": "Se requiere projectId" },
+          "404": { "description": "Proyecto no encontrado o sin acceso" },
+          "500": { "description": "Error al recuperar canales" }
+        }
+      },
+      "post": {
+        "summary": "Crea un nuevo canal en un proyecto",
+        "tags": ["Channel"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string",
+                    "description": "ID del proyecto al que pertenece el canal"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Nombre del canal"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Canal creado correctamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para crear un canal en este proyecto"
+          },
+          "500": { "description": "Error al crear el canal" }
+        }
+      },
+      "put": {
+        "summary": "Actualiza un canal existente",
+        "tags": ["Channel"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID del canal a actualizar"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Nuevo nombre del canal"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Canal actualizado correctamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para actualizar este canal"
+          },
+          "404": { "description": "Canal no encontrado" },
+          "500": { "description": "Error al actualizar el canal" }
+        }
+      },
+      "delete": {
+        "summary": "Elimina un canal existente",
+        "tags": ["Channel"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID del canal a eliminar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Canal eliminado correctamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para eliminar este canal"
+          },
+          "404": { "description": "Canal no encontrado" },
+          "500": { "description": "Error al eliminar el canal" }
+        }
+      }
+    },
     "/api/category": {
       "get": {
         "summary": "Obtiene las categorías de un proyecto",
@@ -176,6 +496,625 @@
           },
           "500": {
             "description": "Error al eliminar la categoría"
+          }
+        }
+      }
+    },
+    "/api/comment": {
+      "get": {
+        "summary": "Obtiene una lista de comentarios de una tarea",
+        "tags": ["Comment"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "taskId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "ID de la tarea a la que pertenecen los comentarios"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "Término de búsqueda opcional para filtrar comentarios"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer" },
+            "description": "Número de página para paginación"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer" },
+            "description": "Cantidad de comentarios por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de comentarios obtenida correctamente"
+          },
+          "400": { "description": "Falta el taskId" },
+          "401": { "description": "No autorizado" },
+          "403": { "description": "Acceso no autorizado" },
+          "404": { "description": "Tarea no encontrada" },
+          "500": { "description": "Error al recuperar comentarios" }
+        }
+      },
+      "post": {
+        "summary": "Crea un nuevo comentario en una tarea",
+        "tags": ["Comment"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string",
+                    "description": "ID de la tarea donde se agregará el comentario"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Contenido del comentario"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Comentario creado correctamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permisos suficientes para comentar"
+          },
+          "404": { "description": "Tarea no encontrada" },
+          "500": { "description": "Error al crear el comentario" }
+        }
+      },
+      "put": {
+        "summary": "Actualiza un comentario existente",
+        "tags": ["Comment"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID del comentario a actualizar"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Nuevo contenido del comentario"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Comentario actualizado correctamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "Solo el autor puede editar este comentario"
+          },
+          "404": { "description": "Comentario no encontrado" },
+          "500": { "description": "Error al actualizar el comentario" }
+        }
+      },
+      "delete": {
+        "summary": "Elimina un comentario",
+        "tags": ["Comment"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID del comentario a eliminar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Comentario eliminado exitosamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para eliminar este comentario"
+          },
+          "404": { "description": "Comentario no encontrado" },
+          "500": { "description": "Error al eliminar el comentario" }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "summary": "Obtiene las notificaciones del usuario autenticado",
+        "tags": ["Notification"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "Filtra las notificaciones por mensaje"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer" },
+            "description": "Número de página para la paginación"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer" },
+            "description": "Cantidad de notificaciones por página"
+          },
+          {
+            "in": "query",
+            "name": "markAsRead",
+            "schema": { "type": "boolean" },
+            "description": "Si es true, marca todas las notificaciones como leídas"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de notificaciones obtenida correctamente"
+          },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error al recuperar notificaciones" }
+        }
+      },
+      "post": {
+        "summary": "Crea una nueva notificación",
+        "tags": ["Notification"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "Contenido de la notificación"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "ID del usuario destinatario (solo para admins)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Notificación creada exitosamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para crear esta notificación"
+          },
+          "500": { "description": "Error al crear la notificación" }
+        }
+      },
+      "put": {
+        "summary": "Actualiza una notificación existente",
+        "tags": ["Notification"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID de la notificación a actualizar"
+                  },
+                  "read": {
+                    "type": "boolean",
+                    "description": "Estado de lectura de la notificación"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Notificación actualizada correctamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para actualizar esta notificación"
+          },
+          "404": { "description": "Notificación no encontrada" },
+          "500": { "description": "Error al actualizar la notificación" }
+        }
+      },
+      "delete": {
+        "summary": "Elimina una notificación",
+        "tags": ["Notification"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID de la notificación a eliminar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Notificación eliminada exitosamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para eliminar esta notificación"
+          },
+          "404": { "description": "Notificación no encontrada" },
+          "500": { "description": "Error al eliminar la notificación" }
+        }
+      }
+    },
+    "/api/collaborators": {
+      "get": {
+        "summary": "Obtiene la lista de colaboradores de un proyecto",
+        "tags": ["Collaborator"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "ID del proyecto"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "Filtra colaboradores por nombre o email"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer" },
+            "description": "Número de página para la paginación"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer" },
+            "description": "Cantidad de colaboradores por página"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de colaboradores obtenida correctamente"
+          },
+          "400": { "description": "Se requiere projectId" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Proyecto no encontrado o sin acceso" },
+          "500": { "description": "Error al recuperar colaboradores" }
+        }
+      },
+      "post": {
+        "summary": "Agrega un colaborador a un proyecto",
+        "tags": ["Collaborator"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string",
+                    "description": "ID del proyecto"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "ID del usuario a agregar"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["admin", "editor", "viewer"],
+                    "default": "viewer",
+                    "description": "Rol del colaborador en el proyecto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Colaborador agregado exitosamente" },
+          "400": { "description": "El usuario ya es colaborador del proyecto" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para agregar colaboradores"
+          },
+          "404": { "description": "Usuario o proyecto no encontrado" },
+          "500": { "description": "Error al agregar colaborador" }
+        }
+      },
+      "put": {
+        "summary": "Actualiza el rol de un colaborador en un proyecto",
+        "tags": ["Collaborator"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID del colaborador"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["admin", "editor", "viewer"],
+                    "description": "Nuevo rol del colaborador"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Colaborador actualizado exitosamente" },
+          "400": {
+            "description": "Debe haber al menos un administrador en el proyecto"
+          },
+          "401": { "description": "No autorizado" },
+          "403": { "description": "No tienes permiso para modificar roles" },
+          "404": { "description": "Colaborador no encontrado" },
+          "500": { "description": "Error al actualizar colaborador" }
+        }
+      },
+      "delete": {
+        "summary": "Elimina un colaborador de un proyecto",
+        "tags": ["Collaborator"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "ID del colaborador a eliminar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Colaborador eliminado exitosamente" },
+          "400": {
+            "description": "No se puede eliminar al creador del proyecto o debe haber al menos un administrador"
+          },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para eliminar colaboradores"
+          },
+          "404": { "description": "Colaborador no encontrado" },
+          "500": { "description": "Error al eliminar colaborador" }
+        }
+      }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "summary": "Obtiene un proyecto por ID",
+        "tags": ["Project"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID del proyecto a obtener"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Proyecto obtenido exitosamente" },
+          "400": { "description": "ID inválido" },
+          "404": { "description": "Proyecto no encontrado" },
+          "500": { "description": "Error al recuperar el proyecto" }
+        }
+      }
+    },
+    "/api/projects": {
+      "get": {
+        "summary": "Obtiene una lista de proyectos",
+        "tags": ["Project"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "Texto de búsqueda para filtrar proyectos por nombre o descripción"
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": { "type": "string" },
+            "description": "Campo por el cual ordenar los resultados"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer" },
+            "description": "Número de página para la paginación"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer" },
+            "description": "Cantidad de proyectos por página"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de proyectos obtenida exitosamente" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      },
+      "post": {
+        "summary": "Crea un nuevo proyecto",
+        "tags": ["Project"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectName": { "type": "string" },
+                  "background": { "type": "string" },
+                  "visibility": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Proyecto creado exitosamente" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      },
+      "put": {
+        "summary": "Actualiza un proyecto existente",
+        "tags": ["Project"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "backgroundType": { "type": "string" },
+                  "backgroundColor": { "type": "string" },
+                  "backgroundGradient": {
+                    "type": "object",
+                    "properties": {
+                      "color1": { "type": "string" },
+                      "color2": { "type": "string" },
+                      "angle": { "type": "number" }
+                    }
+                  },
+                  "backgroundImage": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Proyecto actualizado exitosamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para editar este proyecto"
+          },
+          "500": { "description": "Error del servidor" }
+        }
+      },
+      "delete": {
+        "summary": "Elimina un proyecto",
+        "tags": ["Project"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Proyecto eliminado exitosamente" },
+          "401": { "description": "No autorizado" },
+          "403": {
+            "description": "No tienes permiso para eliminar este proyecto"
+          },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/api/update-avatar": {
+      "post": {
+        "summary": "Actualiza el avatar de un usuario",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Correo electrónico del usuario"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "description": "URL del nuevo avatar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Avatar actualizado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Avatar actualizado correctamente"
+                    },
+                    "avatar": {
+                      "type": "string",
+                      "example": "https://example.com/avatar.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
           }
         }
       }

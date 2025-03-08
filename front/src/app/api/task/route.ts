@@ -91,54 +91,6 @@ export async function GET(request: Request) {
   }
 }
 
-/**
- * @swagger
- * /api/tasks:
- *   get:
- *     summary: Obtiene una lista de tareas filtradas
- *     tags: [Task]
- *     parameters:
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Texto de búsqueda en título o descripción
- *       - in: query
- *         name: categoryId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID de la categoría
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *         description: Número de página
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *         description: Número de tareas por página
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *         description: Estado de la tarea
- *     responses:
- *       200:
- *         description: Lista de tareas obtenida correctamente
- *       400:
- *         description: Se requiere categoryId
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Acceso no autorizado
- *       404:
- *         description: Categoría no encontrada
- *       500:
- *         description: Error al recuperar tareas
- */
-
 export async function POST(request: Request) {
   try {
     await connectDB();
@@ -212,46 +164,6 @@ export async function POST(request: Request) {
     );
   }
 }
-
-/**
- * @swagger
- * /api/tasks:
- *   post:
- *     summary: Crea una nueva tarea
- *     tags: [Task]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               description:
- *                 type: string
- *               category:
- *                 type: string
- *               dueDate:
- *                 type: string
- *                 format: date-time
- *               assignedTo:
- *                 type: string
- *                 nullable: true
- *     responses:
- *       201:
- *         description: Tarea creada exitosamente
- *       400:
- *         description: Datos inválidos
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para crear tareas
- *       404:
- *         description: Categoría no encontrada
- *       500:
- *         description: Error al crear la tarea
- */
 
 export async function PUT(request: Request) {
   try {
@@ -331,47 +243,6 @@ export async function PUT(request: Request) {
     );
   }
 }
-/**
- * @swagger
- * /api/tasks:
- *   put:
- *     summary: Actualiza una tarea existente
- *     tags: [Task]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               _id:
- *                 type: string
- *               title:
- *                 type: string
- *               description:
- *                 type: string
- *               status:
- *                 type: string
- *               dueDate:
- *                 type: string
- *                 format: date-time
- *               assignedTo:
- *                 type: string
- *                 nullable: true
- *     responses:
- *       200:
- *         description: Tarea actualizada exitosamente
- *       400:
- *         description: Datos inválidos
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para actualizar esta tarea
- *       404:
- *         description: Tarea no encontrada
- *       500:
- *         description: Error al actualizar la tarea
- */
 
 export async function DELETE(request: Request) {
   try {
@@ -436,32 +307,3 @@ export async function DELETE(request: Request) {
     );
   }
 }
-
-/**
- * @swagger
- * /api/tasks:
- *   delete:
- *     summary: Elimina una tarea existente
- *     tags: [Task]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               _id:
- *                 type: string
- *                 description: ID de la tarea a eliminar
- *     responses:
- *       200:
- *         description: Tarea eliminada exitosamente
- *       401:
- *         description: No autorizado
- *       403:
- *         description: No tienes permiso para eliminar esta tarea
- *       404:
- *         description: Tarea no encontrada
- *       500:
- *         description: Error al eliminar la tarea
- */

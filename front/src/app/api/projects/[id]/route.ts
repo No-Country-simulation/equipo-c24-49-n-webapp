@@ -55,28 +55,3 @@ export async function GET(
     );
   }
 }
-
-/**
- * @swagger
- * api/projects/{id}:
- *   get:
- *     summary: Obtiene un proyecto por ID
- *     tags: [Project]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del proyecto a obtener
- *     responses:
- *       200:
- *         description: Proyecto obtenido exitosamente
- *       400:
- *         description: ID inválido
- *       404:
- *         description: Proyecto no encontrado
- *       500:
- *         description: Error al recuperar el proyecto
- *
- */

@@ -1,9 +1,10 @@
-import SwaggerUI from "swagger-ui-react";
-import "swagger-ui-react/swagger-ui.css";
+// import SwaggerUI from "swagger-ui-react";
+// import "swagger-ui-react/swagger-ui.css";
 const page = () => {
   return (
     <div>
-      <SwaggerUI url="swagger.json" />
+      Test
+      {/* <SwaggerUI url="swagger.json" /> */}
     </div>
   );
 };

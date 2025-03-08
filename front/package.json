@@ -25,7 +25,6 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.5.2",
-    "swagger-ui-react": "^5.20.0",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.5.2",
     "zustand": "^5.0.3"
@@ -36,7 +35,6 @@
     "@next/eslint-plugin-next": "^15.2.1",
     "@types/node": "^22.13.5",
     "@types/react": "^19.0.10",
-    "@types/swagger-ui-react": "^5.18.0",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
     "daisyui": "^4.12.23",

@@ -2,13 +2,14 @@
 
 import { FormEvent, useState } from "react";
 import axios, { AxiosError } from "axios";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 
 const Register = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,8 +51,11 @@ const Register = () => {
     }
   };
 
+  if (status === "loading") {
+    return <p className="text-center text-primary">Cargando...</p>;
+  }
+
   return (
- 
     <div className="min-h-screen flex justify-center sm:overflow-hidden overflow-visible">
       {/* <Navbar /> */}
 
@@ -156,6 +160,8 @@ const Register = () => {
                     Registrarme
                   </button>
                 </form>
+                <p>¿Ya tienes cuenta? <a href="/login" className="link cursor-pointer"> Inicia sesión</a> </p>
+
               </div>
             </div>
           </div>

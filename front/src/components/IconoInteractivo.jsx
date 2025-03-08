@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 
 const IconoInteractivo = ({ tipo }) => {
   const [activo, setActivo] = useState(false);

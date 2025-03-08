@@ -21,7 +21,11 @@ const Navbar = () => {
             href="/"
             className="btn btn-link flex items-center text-gray-900 gap-2 no-underline hover:no-underline active:no-underline"
           >
-            <img src="/logo.svg" alt="Logo" className="w-12 h-12 object-contain" />
+            <img
+              src="/logo.svg"
+              alt="Logo"
+              className="w-12 h-12 object-contain"
+            />
             <span className="text-[24px] font-bold">PANAL</span>
           </Link>
         </div>
@@ -29,15 +33,59 @@ const Navbar = () => {
         {/* Menú de navegación */}
         <div className="gap-2 flex items-center">
           <ul className="menu menu-horizontal gap-2 text-sm font-semibold flex-nowrap hidden md:flex">
-            <li><a href="#features">Recursos</a></li>
-            <li><a href="#pricing">Equipos</a></li>
-            <li><a href="/about">Sobre el proyecto</a></li>
+            <li>
+              <a href="#features">Recursos</a>
+            </li>
+            <li>
+              <a href="#pricing">Equipos</a>
+            </li>
+            <li>
+              <a href="/about">Sobre el proyecto</a>
+            </li>
           </ul>
+
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost md:hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {" "}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h8m-8 6h16"
+                />{" "}
+              </svg>
+            </div>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+            >
+              <li>
+                <a href="#features">Recursos</a>
+              </li>
+              <li>
+                <a href="#pricing">Equipos</a>
+              </li>
+              <li>
+                <a href="/about">Sobre el proyecto</a>
+              </li>
+            </ul>
+          </div>
 
           {/* Si hay sesión, muestra el avatar; si no, botones de login/register */}
           {session?.user ? (
             <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle avatar"
+              >
                 <div className="w-14 rounded-full">
                   <img
                     alt="User Avatar"
@@ -45,16 +93,34 @@ const Navbar = () => {
                   />
                 </div>
               </div>
-              <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow gap-2">
-                <li><a href="/dashboard/profile">Perfil</a></li>
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow gap-2"
+              >
+                <li>
+                  <a href="/dashboard/profile">Perfil</a>
+                </li>
                 {/* <li><a href="/settings">Configuración</a></li> */}
-                <li><button onClick={() => signOut()}>Cerrar Sesión</button></li>
+                <li>
+                  <button onClick={() => signOut()}>Cerrar Sesión</button>
+                </li>
               </ul>
             </div>
           ) : (
             <div className="flex flex-nowrap gap-2">
-              {pathname !== "/login" && <Link href="/login" className="btn">Iniciar Sesión</Link>}
-              {pathname !== "/register" && <Link href="/register" className="hidden md:flex btn btn-primary">Registrarse</Link>}
+              {pathname !== "/login" && (
+                <Link href="/login" className="btn">
+                  Iniciar Sesión
+                </Link>
+              )}
+              {pathname !== "/register" && (
+                <Link
+                  href="/register"
+                  className="hidden md:flex btn btn-primary"
+                >
+                  Registrarse
+                </Link>
+              )}
             </div>
           )}
         </div>

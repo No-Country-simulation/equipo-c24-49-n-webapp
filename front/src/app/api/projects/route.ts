@@ -134,15 +134,37 @@ export async function POST(request: Request) {
 
     const data = await request.json();
 
-    // Mapeo de los campos del componente al modelo
+    // Validar datos requeridos
+    if (!data.name || !data.visibility) {
+      return NextResponse.json(
+        { error: "Nombre y visibilidad son campos requeridos" },
+        { status: 400 }
+      );
+    }
+
+    // Determinar el tipo de fondo y sus propiedades
+    let backgroundType = "color";
+    let backgroundColor = "#FFFFFF";
+    let backgroundImage = null;
+
+    if (data.backgroundType === "image" && data.backgroundImage) {
+      backgroundType = "image";
+      backgroundImage = data.backgroundImage;
+    } else if (data.backgroundType === "gradient" && data.backgroundGradient) {
+      backgroundType = "gradient";
+      backgroundColor = data.backgroundGradient;
+    } else if (data.backgroundColor) {
+      backgroundColor = data.backgroundColor;
+    }
+
+    // Crear el nuevo proyecto
     const newProject = new Project({
-      name: data.projectName,
-      description: "",
+      name: data.name,
+      description: data.description || "",
       creator: new mongoose.Types.ObjectId(session.user._id),
-      backgroundType: "color",
-      backgroundColor: data.background
-        ? getBackgroundColor(data.background)
-        : "#FFFFFF",
+      backgroundType,
+      backgroundColor,
+      backgroundImage,
       visibility: data.visibility,
     });
 
@@ -170,9 +192,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating project:", error);
     return NextResponse.json(
-      {
-        error: "Error al crear el proyecto",
-      },
+      { error: "Error al crear el proyecto" },
       { status: 500 }
     );
   }

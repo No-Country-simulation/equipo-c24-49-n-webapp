@@ -5,7 +5,8 @@ export default async function Page() {
   const spec = await getApiDocs();
   return (
     <section className="container">
-      <ReactSwagger spec={spec} />
+      {/* <ReactSwagger spec={spec} /> */}
+      <h1>Test</h1>
     </section>
   );
 }

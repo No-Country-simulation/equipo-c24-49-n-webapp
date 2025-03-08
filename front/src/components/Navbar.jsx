@@ -1,12 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
   if (pathname.startsWith("/dashboard")) {
     return null;
@@ -44,6 +42,18 @@ const Navbar = () => {
             </li>
           </ul>
 
+          <div className="flex flex-nowrap gap-2">
+            {pathname !== "/login" && (
+              <Link href="/login" className="btn">
+                Iniciar Sesión
+              </Link>
+            )}
+            {pathname !== "/register" && (
+              <Link href="/register" className="hidden md:flex btn btn-primary">
+                Registrarse
+              </Link>
+            )}
+          </div>
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost md:hidden">
               <svg
@@ -77,52 +87,6 @@ const Navbar = () => {
               </li>
             </ul>
           </div>
-
-          {/* Si hay sesión, muestra el avatar; si no, botones de login/register */}
-          {session?.user ? (
-            <div className="dropdown dropdown-end">
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-ghost btn-circle avatar"
-              >
-                <div className="w-14 rounded-full">
-                  <img
-                    alt="User Avatar"
-                    src={session.user.avatar || "/default-avatar.png"}
-                  />
-                </div>
-              </div>
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow gap-2"
-              >
-                <li>
-                  <a href="/dashboard/profile">Perfil</a>
-                </li>
-                {/* <li><a href="/settings">Configuración</a></li> */}
-                <li>
-                  <button onClick={() => signOut()}>Cerrar Sesión</button>
-                </li>
-              </ul>
-            </div>
-          ) : (
-            <div className="flex flex-nowrap gap-2">
-              {pathname !== "/login" && (
-                <Link href="/login" className="btn">
-                  Iniciar Sesión
-                </Link>
-              )}
-              {pathname !== "/register" && (
-                <Link
-                  href="/register"
-                  className="hidden md:flex btn btn-primary"
-                >
-                  Registrarse
-                </Link>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

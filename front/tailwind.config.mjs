@@ -6,16 +6,24 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  theme: {
+    extend: {
+      fontFamily: {
+        kodchasan: ['var(--font-kodchasan)'],
+        kokoro: ['var(--font-kokoro)'],
+      },
+    },
+  },
   daisyui: {
     themes: [
       {
         mytheme: {
           primary: "#F56F63",
-					"primary-content": "#FEFEFE",
+          "primary-content": "#FEFEFE",
           secondary: "#FDEFAE",
-					"": "#3D2C00",
+          "": "#3D2C00",
           accent: "#3d2c00",
-					"accent-content": "#FEFEFE",
+          "accent-content": "#FEFEFE",
           neutral: "#44403c",
           "base-100": "#FEFEFE",
           info: "#96d8ee",

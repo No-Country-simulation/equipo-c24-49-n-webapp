@@ -9,6 +9,11 @@
        url('/fonts/Kokoro-Regular.ttf') format('truetype');
 }
 
+:root {
+  --font-kodchasan: 'Kodchasan', Arial, Helvetica, sans-serif;
+  --font-kokoro: 'Kokoro', Arial, Helvetica, sans-serif;
+}
+
 body {
   font-family: 'Kodchasan', Arial, Helvetica, sans-serif;
 }

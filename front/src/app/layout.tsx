@@ -6,7 +6,6 @@ import Navbar from "@/components/Navbar";
 import BeePatern from "@/components/BeePatern";
 import Providers from "./Providers";
 import { Toaster } from "react-hot-toast";
-// import { AuthAwareLayout } from "@/components/AuthAwareLayout";
 import { usePathname } from "next/navigation";
 
 const kodchasan = Kodchasan({
@@ -52,17 +51,7 @@ export default function RootLayout({ children }) {
             <Navbar />
           </header>
           <BeePatern />
-          {/* <AuthAwareLayout
-            navbar={
-          <header>
-            <Navbar />
-          </header>
-            }
-            beePattern={<BeePatern />}
-            publicPaths={["/", "/login", "/register"]}
-          > */}
           {children}
-          {/* </AuthAwareLayout> */}
         </Providers>
       </body>
     </html>

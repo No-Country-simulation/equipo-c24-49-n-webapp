@@ -35,7 +35,10 @@ const Sidebar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
         setIsExpanded(false);
       }
     };
@@ -60,24 +63,45 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Home", href: "/dashboard", icon: "/home-icon.svg" },
-    { name: "Proyectos", href: "/dashboard/projects", icon: "/tareas-icon.svg" },
+    {
+      name: "Proyectos",
+      href: "/dashboard/projects",
+      icon: "/tareas-icon.svg",
+    },
     { name: "Equipos", href: "/dashboard/teams", icon: "/equipos-icon.svg" },
-    { name: "Configuración", href: "/dashboard/settings", icon: "/config-icon.svg", bottom: true },
+    {
+      name: "Configuración",
+      href: "/dashboard/settings",
+      icon: "/config-icon.svg",
+      bottom: true,
+    },
   ];
 
   return (
     <aside
-    onClick={expandSidebar}
+      onClick={expandSidebar}
       ref={sidebarRef}
-      className={`flex flex-col min-h-screen bg-secondary backdrop-blur-md rounded-tr-[3rem] rounded-br-[3rem] transition-all duration-300 ${
-        isExpanded ? "max-w-60 min-w-60 mr-6" : "max-w-20 min-w-20 mr-20"
+      className={`flex flex-col  bg-secondary backdrop-blur-md rounded-tr-[41px] rounded-br-[41px] transition-all duration-300 ${
+        isExpanded
+          ? "max-w-[257px] min-w-[257px] mr-6"
+          : "max-w-20 min-w-20 mr-20"
       }`}
     >
-      <ul className="flex flex-col flex-grow gap-8 font-normal text-base relative">
+      <ul className="flex flex-col flex-grow gap-[40px] font-normal text-base relative pl-[51px]">
         {/* Logo / Botón para expandir */}
-        <li className="flex items-center justify-center gap-3 pt-14  cursor-pointer" onClick={toggleSidebar}>
-          <Image src="/logo.svg" alt="Logo" width={48} height={48} />
-          {isExpanded && <span className="text-2xl font-bold">PANAL</span>}
+        <li
+          className="flex  gap-1 pt-14  cursor-pointer"
+          onClick={toggleSidebar}
+        >
+          <Image src="/logo.svg" alt="Logo" width={38} height={38} />
+          {isExpanded && (
+            <span
+              className="text-xl font-medium font-['Kodchasan']
+leading-loose text-[#3d2c00]"
+            >
+              PANAL
+            </span>
+          )}
         </li>
 
         {/* Menú */}
@@ -85,15 +109,26 @@ const Sidebar = () => {
           const isActive = pathname === href;
 
           return (
-            <li key={name} className={`relative pl-4 flex flex-col gap-3 ${bottom ? "mt-auto mb-10" : ""}`}>
+            <li
+              key={name}
+              className={`relative  flex flex-col ${
+                bottom ? "mt-auto mb-10 " : ""
+              }`}
+            >
               {isActive && (
-                <div className="absolute right-0 top-3 -translate-y-10 w-[70px] h-[135px]">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 135" fill="black">
+                <div className="absolute -right-0 top-3 -translate-y-1/2 w-[229px] h-[133px]">
+                  <svg
+                    width="229"
+                    height="134"
+                    viewBox="0 0 229 134"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M49 93.0645C71.6437 93.0645 90 111.421 90 134.065V0.437314C90 23.081 71.6437 41.4373 49 41.4373H25.8136C11.5572 41.4373 0 52.9944 0 67.2509C0 81.5074 11.5571 93.0645 25.8136 93.0645H49Z"
-                      fill="white"
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M229 133.229C228.892 110.677 210.577 92.4281 188 92.4281H25.8136C11.5571 92.4281 0 80.871 0 66.6145C0 52.3581 11.5571 40.8009 25.8136 40.8009H188C210.577 40.8009 228.892 22.5521 229 0V133.229Z"
+                      fill="#FFFFFF"
                     />
                   </svg>
                 </div>
@@ -101,23 +136,30 @@ const Sidebar = () => {
 
               <Link
                 href={href}
-                className={`flex items-center gap-2 px-3 py-2 transition-all relative ${
-                  isActive ? "bg-white rounded-full h-12 " : " w-32 hover:bg-opacity-50 hover:bg-white hover:rounded-full"
+                className={`flex items-center gap-2 pr-3 mb-2 py-0 transition-all relative ${
+                  isActive
+                    ? "  "
+                    : " w-32 hover:bg-opacity-50 hover:bg-white hover:rounded-full"
                 }`}
               >
-                <Image src={icon} alt={`Ícono ${name}`} width={24} height={24} />
+                <Image
+                  src={icon}
+                  alt={`Ícono ${name}`}
+                  width={24}
+                  height={24}
+                />
                 {isExpanded && <span>{name}</span>}
               </Link>
 
               {/* Submenú de proyectos recientes */}
-              {isExpanded && name === "Proyectos" && (
+              {/* {isExpanded && name === "Proyectos" && (
                 <ul className="pl-8 mt-2">
                   {recentProjects.length > 0 ? (
                     recentProjects.map((project) => (
                       <li key={project._id} className="mb-2">
                         <Link
                           href={`/dashboard/projects/${project._id}`}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-l-xl transition-all ${
+                          className={`flex items-center gap-2  pl-0 py-2 rounded-l-xl transition-all ${
                             pathname.includes(`/dashboard/projects/${project._id}`) ? "bg-white" : "hover:bg-white"
                           }`}
                         >
@@ -129,7 +171,7 @@ const Sidebar = () => {
                     <span className="loading loading-ring loading-lg"></span>
                   )}
                 </ul>
-              )}
+              )} */}
             </li>
           );
         })}

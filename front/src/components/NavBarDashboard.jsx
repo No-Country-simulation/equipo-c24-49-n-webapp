@@ -4,7 +4,7 @@ import FechaActual from "./ui/FechaActual"
 
 const NavBarDashboard = () => {
     return(
-        <div className="mt-7 ml-14 mb-20 mr-9 flex flex-row justify-between">
+        <div className="mt-7 ml-[50px]  mb-[76px] mr-9 flex flex-row justify-between">
             <SearchBar/>
             <FechaActual/>
             <div className="flex flex-row gap-12 items-center text-secondary-content">

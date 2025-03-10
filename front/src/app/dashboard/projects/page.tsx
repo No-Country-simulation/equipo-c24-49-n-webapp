@@ -93,11 +93,11 @@ export default function Proyectos() {
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-3xl font-medium text-[#5a3d2b] mb-8">Proyectos</h1>
+      <h1 className="text-3xl font-medium text-[#5a3d2b] mb-8 ml-6">Proyectos</h1>
 
       <AddProjectPopup onProjectCreated={handleProjectCreated} />
 
-      <div className=" inline-flex justify-start items-start gap-[21px] flex-wrap content-start">
+      <div className=" flex justify-start items-start gap-[21px] flex-wrap content-start">
         {projects.map((project) => (
           <div key={project._id} className="relative group w-[292px] h-[189px]">
             <Link href={`/dashboard/projects/${project._id}`}>
@@ -117,7 +117,7 @@ export default function Proyectos() {
         ))}
 
         {/* Añadir proyecto (alternativo) */}
-        <div className="rounded-2xl p-8 h-44 flex items-center justify-center bg-white border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors">
+        <div className="rounded-2xl p-8 w-[292px] h-[189px] flex items-center justify-center bg-white border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors">
           <Plus className="h-10 w-10 text-red-400" />
         </div>
       </div>

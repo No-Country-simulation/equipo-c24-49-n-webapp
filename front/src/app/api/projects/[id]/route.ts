@@ -38,8 +38,9 @@ export async function GET(
         select: "name messages",
       })
       .populate("creator", "fullname avatar");
-
+      console.log(project)
     if (!project) {
+      
       return NextResponse.json(
         { error: "Proyecto no encontrado" },
         { status: 404 }

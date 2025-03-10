@@ -17,27 +17,31 @@ const DashboardCard = () => {
   const firstName = fullName.split(" ")[0]; // Obtiene el primer nombre
 
   return (
-    <section className="relative bg-white shadow-md drop-shadow-md rounded-2xl ml-16 mr-14 mt-4 pt-14 pr-24 p-5 pl-7 flex flex-col">
-      <div className="flex flex-col gap-8 mb-[45px]">
-        <h2 className="text-[40px] font-medium">Hola, {firstName}!</h2>
-        <p className="text-[20px]">¿Qué vas a hacer hoy?</p>
+    <section className="flex relative shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)]  rounded-2xl ml-[50px] mr-14  pt-[40px] pr-24 p-5 pl-7 min-h-[309px] min-w-[913]">
+      <div className="">
+        <div className="flex flex-col gap-[42px] mb-[40px] w-fit">
+          <h2 className="text-[40px] font-medium w-fit">Hola, {firstName}!</h2>
+          <p className="text-[20px]">¿Qué vas a hacer hoy?</p>
+        </div>
+
+        <div className="grid grid-cols-2 w-[500px] gap-7 bg-gray-100">
+          <Shortcut icon="/new-project.svg" text="Crear un nuevo proyecto" />
+          <Shortcut icon="/my-projects.svg" text="Ver mis proyectos" />
+          <Shortcut icon="/add-member.svg" text="Añadir un nuevo miembro" />
+          <Shortcut icon="/team-tasks.svg" text="Ver las tareas de equipo" />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 w-[38rem] gap-7">
-        <Shortcut icon="/new-project.svg" text="Crear un nuevo proyecto" />
-        <Shortcut icon="/my-projects.svg" text="Ver mis proyectos" />
-        <Shortcut icon="/add-member.svg" text="Añadir un nuevo miembro" />
-        <Shortcut icon="/team-tasks.svg" text="Ver las tareas de equipo" />
-      </div>
-
-      <div className="relative">
-        <Image
-          src="/abejita.svg"
-          alt="Abeja Panal"
-          width={420}
-          height={420}
-          className="absolute right-48 -bottom-4 translate-x-1/2"
-        />
+      <div className="absolute -top-12 right-0">
+        <div>
+          <Image
+            src="/abejita.svg"
+            alt="Abeja Panal"
+            width={317}
+            height={362}
+            className=""
+          />
+        </div>
       </div>
     </section>
   );

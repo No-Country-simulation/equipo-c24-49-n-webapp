@@ -25,3 +25,19 @@ h1, h2, h3, h4, h5, h6 {
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
+
+/* Transiciones suaves */
+.task-item {
+  transition: background-color 0.2s ease;
+}
+
+/* Estilo para fechas vencidas */
+.task-overdue {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Sombras suaves */
+.task-card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

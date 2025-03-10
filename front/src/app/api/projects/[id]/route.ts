@@ -30,7 +30,7 @@ export async function GET(
         select: "name tasks",
         populate: {
           path: "tasks",
-          select: "title",
+          select: "title description priority status",
         },
       })
       .populate({
@@ -39,6 +39,7 @@ export async function GET(
       })
       .populate("creator", "fullname avatar");
       console.log(project)
+      // console.log(project?.categories[0]?.tasks)
     if (!project) {
       
       return NextResponse.json(

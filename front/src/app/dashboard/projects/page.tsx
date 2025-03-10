@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MoreHorizontal, Plus } from "lucide-react";
 import AddProjectPopup from "@/components/AddProjectPopup";
@@ -17,6 +17,7 @@ export default function Proyectos() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
 
   // Función para cargar los proyectos
   const fetchProjects = async () => {
@@ -38,17 +39,17 @@ export default function Proyectos() {
   useEffect(() => {
     fetchProjects();
   }, []);
-  
+
   // Función para actualizar la lista de proyectos
   const handleProjectCreated = () => {
     fetchProjects(); // Vuelve a cargar los proyectos
   };
-  
+
   // Función para obtener el estilo de fondo radial del proyecto
   const getProjectBackground = (project: Project) => {
     const color = project.backgroundColor || "#FFFFFF";
     return {
-      background: `radial-gradient(circle, #FFFFFF 30%, ${color} 100%)`,
+      background: `radial-gradient(circle, #FFFFFF 30%, ${color} 150%)`,
     };
   };
 
@@ -56,14 +57,14 @@ export default function Proyectos() {
     return (
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <h1 className="text-3xl font-medium text-[#5a3d2b] mb-8">Proyectos</h1>
-        <div className="skeleton h-8 w-28 my-12"></div>
+        <div className="skeleton h-8 w-28 my-12 bg-gray-100"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="skeleton h-44 "></div>
-          <div className="skeleton h-44 "></div>
-          <div className="skeleton  h-44 "></div>
-          <div className="skeleton h-44 "></div>
-          <div className="skeleton h-44 "></div>
-          <div className="skeleton  h-44 "></div>
+        <div className="skeleton h-44 bg-gray-100"></div>
+        <div className="skeleton h-44 bg-gray-100"></div>
+        <div className="skeleton h-44 bg-gray-100"></div>
+        <div className="skeleton h-44 bg-gray-100"></div>
+        <div className="skeleton h-44 bg-gray-100"></div>
+        <div className="skeleton h-44 bg-gray-100"></div>
         </div>
       </main>
     );
@@ -79,32 +80,40 @@ export default function Proyectos() {
   }
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-3xl font-medium text-[#5a3d2b] mb-8 ml-6">Proyectos</h1>
+    <main className="container mx-auto px-4 py-8 max-w-6xl font-kodchasan ">
+      <h1 className="text-[24px] font-semibold text-[#5a3d2b] mb-8 ml-6 font-kodchasan ">Proyectos</h1>
 
-      <AddProjectPopup onProjectCreated={handleProjectCreated} />
+
+      <AddProjectPopup
+        onProjectCreated={handleProjectCreated}
+        isOpen={isAddProjectOpen}
+        setIsOpen={setIsAddProjectOpen}
+      />
 
       <div className="flex justify-start items-start gap-[21px] flex-wrap content-start">
         {projects.map((project) => (
-          <div key={project._id} className="relative group w-[292px] h-[189px]">
+          <div key={project._id} className="relative group w-[313px] h-[189px] ">
             <Link href={`/dashboard/projects/${project._id}`}>
               <div
-                className="rounded-2xl h-44 flex items-center justify-center shadow-sm"
+                className="rounded-xl h-44 flex items-center justify-center shadow-sm px-10"
                 style={getProjectBackground(project)}
               >
-                <h2 className="text-xl font-medium text-center text-[#5a3d2b]">
+                <h2 className="text-[16px] font-medium text-center group-hover:underline font-kodchasan text-[#3D2C00] ">
                   {project.name}
                 </h2>
               </div>
             </Link>
-            <button className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600">
+            <button className="absolute hidden group-hover:block top-4 right-4 p-1 text-gray-600 ">
               <MoreHorizontal className="h-5 w-5" />
             </button>
           </div>
         ))}
 
-        {/* Añadir proyecto (alternativo) */}
-        <div className="rounded-2xl p-8 w-[292px] h-[189px] flex items-center justify-center bg-white border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors">
+        {/* Añadir proyecto alternativo*/}
+        <div
+          className="rounded-xl p-8 w-[313px] h-[179px]  flex items-center justify-center bg-white border-2  border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
+          onClick={() => setIsAddProjectOpen(true)}
+        >
           <Plus className="h-10 w-10 text-red-400" />
         </div>
       </div>

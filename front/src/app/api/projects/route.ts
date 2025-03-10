@@ -49,7 +49,7 @@ function getBackgroundColor(backgroundValue: string): string {
     case "rosa":
       return "#FFE7E3"; // hsla(8, 100%, 95%, 1)
     case "verde":
-      return "#4EAF00"; // Corregido para ser un color hexadecimal válido
+      return "#E1F1D5"; // Corregido para ser un color hexadecimal válido
     case "nube":
       return "#D7EDF2"; // hsla(191, 51%, 90%, 1)
     case "patron-1":

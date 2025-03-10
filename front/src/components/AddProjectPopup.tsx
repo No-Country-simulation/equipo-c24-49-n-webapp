@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, PlusSquare } from "lucide-react";
+import { useState, Dispatch, SetStateAction } from "react";
+import { X } from "lucide-react";
 
 // Opciones de colores de fondo
 const backgroundOptions = [
@@ -20,13 +20,28 @@ const visibilityOptions = [
   { value: "equipo", label: "Equipo" },
 ];
 
-export default function AddProjectPopup({ onProjectCreated }) {
-  const [isOpen, setIsOpen] = useState(false);
+// Define la interfaz de las props con tipos correctos
+interface AddProjectPopupProps {
+  onProjectCreated: () => void;
+  isOpen?: boolean;
+  setIsOpen?: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function AddProjectPopup({
+  onProjectCreated,
+  isOpen: externalIsOpen,
+  setIsOpen: externalSetIsOpen
+}: AddProjectPopupProps) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [background, setBackground] = useState("");
   const [visibility, setVisibility] = useState("privado");
   const [isBackgroundOpen, setIsBackgroundOpen] = useState(false);
   const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
+
+  // Use either the external state (if provided) or the internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = externalSetIsOpen || setInternalIsOpen;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +82,7 @@ export default function AddProjectPopup({ onProjectCreated }) {
   };
 
   // Colores de fondo
-  const getRadialPreview = (colorValue) => {
+  const getRadialPreview = (colorValue: string) => {
     const bgColor = backgroundOptions.find(opt => opt.value === colorValue)?.color || "#FFFFFF";
     return {
       background: `radial-gradient(circle, ${bgColor} 30%, ${bgColor} 100%)`,
@@ -76,20 +91,20 @@ export default function AddProjectPopup({ onProjectCreated }) {
 
   return (
     <>
-      {/* Botón para abrir el popup */}
+
       <button
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 border border-gray-200 rounded-full px-5 py-2.5 text-sm font-medium text-[#5a3d2b] mb-10 hover:bg-gray-50 transition-colors"
+        className="inline-flex items-center gap-2 border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#5a3d2b] mb-10 hover:bg-gray-50 transition-colors"
       >
-        <PlusSquare className="h-5 w-5 text-red-400" />
+        <img src="/icons/square-plus-border.svg" alt="Añadir proyecto" />
         Añadir proyecto
       </button>
 
-      {/* Popup */}
+
+      {/* Modal/Popup */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ">
-          <div className="bg-white rounded-[10px] w-[426px] max-w-md mx-4  relative shadow-xl">
-            {/* Botón de cierre */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-[10px] w-[426px] max-w-md mx-4 relative shadow-xl">
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-10 right-4 text-gray-400 hover:text-gray-600"
@@ -97,17 +112,15 @@ export default function AddProjectPopup({ onProjectCreated }) {
               <X className="h-6 w-6" />
             </button>
 
-            {/* Título */}
             <h2 className="text-[16px] font-semibold text-[#3D2C00] text-accent mb-0 font-kodchasan w-[354px] mx-auto pt-10">
               Añadir proyecto
             </h2>
-            <div className="divider "></div>
-            <form onSubmit={handleSubmit} className="space-y-4 text-[13px] w-[354px] mx-auto py-4 ">
-              {/* Input de Nombre de Proyecto */}
+            <div className="divider"></div>
+            <form onSubmit={handleSubmit} className="space-y-4 text-[13px] w-[354px] mx-auto py-4">
               <div>
                 <label
                   htmlFor="projectName"
-                  className="block  font-semibold text-accent mb-4"
+                  className="block font-semibold text-accent mb-4"
                 >
                   Nombre
                 </label>
@@ -123,11 +136,10 @@ export default function AddProjectPopup({ onProjectCreated }) {
               </div>
 
               <div>
-                <label className="block  font-bold text-gray-700 mt-6 mb-4">
+                <label className="block font-bold text-gray-700 mt-6 mb-4">
                   Fondo
                 </label>
                 <div className="relative">
-                  {/* Botón para desplegar la lista */}
                   <button
                     type="button"
                     onClick={() => setIsBackgroundOpen(!isBackgroundOpen)}
@@ -149,8 +161,7 @@ export default function AddProjectPopup({ onProjectCreated }) {
                       </span>
                     </div>
                     <svg
-                      className={`h-5 w-5 text-gray-500 transform transition-transform ${isBackgroundOpen ? "rotate-180" : ""
-                        }`}
+                      className={`h-5 w-5 text-gray-500 transform transition-transform ${isBackgroundOpen ? "rotate-180" : ""}`}
                       viewBox="0 0 20 20"
                       fill="#3D2C00"
                     >
@@ -170,8 +181,7 @@ export default function AddProjectPopup({ onProjectCreated }) {
                         return (
                           <li
                             key={option.value}
-                            className={`px-4 py-2 ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"
-                              } cursor-pointer flex items-center justify-between`}
+                            className={`px-4 py-2 ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"} cursor-pointer flex items-center justify-between`}
                             onClick={() => {
                               setBackground(option.value);
                               setIsBackgroundOpen(false);
@@ -208,11 +218,12 @@ export default function AddProjectPopup({ onProjectCreated }) {
                   )}
                 </div>
               </div>
+
               {/* Visibilidad */}
               <div>
                 <label
                   htmlFor="visibility"
-                  className="block  font-bold text-gray-700  mt-6 mb-4"
+                  className="block font-bold text-gray-700 mt-6 mb-4"
                 >
                   Visibilidad
                 </label>
@@ -224,8 +235,7 @@ export default function AddProjectPopup({ onProjectCreated }) {
                   >
                     {visibilityOptions.find(opt => opt.value === visibility)?.label}
                     <svg
-                      className={`h-5 w-5 transform transition-transform ${isVisibilityOpen ? "rotate-180" : ""
-                        }`}
+                      className={`h-5 w-5 transform transition-transform ${isVisibilityOpen ? "rotate-180" : ""}`}
                       viewBox="0 0 20 20"
                       fill="#3D2C00"
                     >
@@ -244,8 +254,7 @@ export default function AddProjectPopup({ onProjectCreated }) {
                         return (
                           <li
                             key={option.value}
-                            className={`px-4 py-2 ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"
-                              } cursor-pointer flex items-center justify-between`}
+                            className={`px-4 py-2 ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"} cursor-pointer flex items-center justify-between`}
                             onClick={() => {
                               setVisibility(option.value);
                               setIsVisibilityOpen(false);
@@ -254,7 +263,7 @@ export default function AddProjectPopup({ onProjectCreated }) {
                             <span>{option.label}</span>
                             {isSelected && (
                               <svg
-                                className="h-5 w-5 text-green-500"
+                                className="h-5 w-5 text-gray-500"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -275,7 +284,6 @@ export default function AddProjectPopup({ onProjectCreated }) {
                 </div>
               </div>
 
-              {/* Botón de Crear Proyecto */}
               <div className="w-full flex items-center justify-center gap-2 pt-14 pb-4">
                 <button
                   type="submit"
@@ -284,7 +292,6 @@ export default function AddProjectPopup({ onProjectCreated }) {
                   Crear Proyecto
                 </button>
               </div>
-
             </form>
           </div>
         </div>

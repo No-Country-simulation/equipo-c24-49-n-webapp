@@ -1,157 +1,220 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { MoreVertical, Plus, UserPlus, ListPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Plus, UserPlus, MoreHorizontal } from "lucide-react";
 
 interface Task {
-    id: string;
-    content: string;
+  _id: string;
+  title: string;
+  status: "En curso" | "En pausa" | "Finalizada";
+  priority: "Alta" | "Media" | "Baja";
+  dueDate?: string;
+  category: string; // 👈 La tarea pertenece a una categoría específica
 }
 
-interface Column {
-    id: string;
-    title: string;
-    tasks: Task[];
+interface Category {
+  _id: string;
+  name: string;
+  tasks: Task[];
 }
 
-interface ProjectDetails {
-    _id: string;
-    name: string;
-    categories: {
-        _id: string;
-        name: string;
-        tasks: Array<{ _id: string; title: string }>;
-    }[];
+interface Project {
+  _id: string;
+  name: string;
+  categories: Category[];
+  tasks: Task[]; // 👈 Las tareas están en el proyecto, no en las categorías
 }
 
-export default function ProjectBoard() {
-    const { id } = useParams();
-    const router = useRouter();
-    const [project, setProject] = useState<ProjectDetails | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+export default function ProjectPage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const [project, setProject] = useState<Project | null>(null);
+  const [showAddTaskInput, setShowAddTaskInput] = useState<string | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        async function fetchProject() {
-            try {
-                const response = await fetch(`/api/projects/${id}`);
-                if (!response.ok) throw new Error('Proyecto no encontrado');
-                const data = await response.json();
-                setProject(data);
-            } catch (err) {
-                setError((err as Error).message);
-            } finally {
-                setIsLoading(false);
-            }
-        }
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const response = await fetch(`/api/projects/${id}`);
+        if (!response.ok) throw new Error("Error al cargar el proyecto");
 
-        fetchProject();
-    }, [id]);
-
-    const transformCategoriesToColumns = (): Column[] => {
-        if (!project) return [];
-
-        return project.categories.map(category => ({
-            id: category._id,
-            title: category.name,
-            tasks: category.tasks.map(task => ({
-                id: task._id,
-                content: task.title
-            }))
-        }));
+        const projectData = await response.json();
+        setProject(projectData);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const addNewTask = (columnId: string) => {
-        // Lógica para añadir nueva tarea
-        console.log(`Añadir nueva tarea a ${columnId}`);
-    };
+    fetchProject();
+  }, [id]);
 
-    const addNewCategory = () => {
-        // Lógica para añadir nueva categoría
-        console.log("Añadir nueva lista de tareas");
-    };
+  const handleAddTask = async (categoryId: string) => {
+    if (!newTaskTitle.trim()) return;
 
-    if (isLoading) {
-        return (
-            <div className="max-w-7xl mx-auto p-6 bg-white animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-1/3 mb-6" />
-                <div className="h-10 bg-gray-200 rounded w-1/4 mb-8" />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="h-64 bg-gray-100 rounded-lg" />
-                    ))}
-                </div>
-            </div>
-        );
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTaskTitle,
+          category: categoryId, // 👈 La tarea pertenece a una categoría
+          priority: "Baja",
+          projectId: project?._id, // 👈 Asegurar que la tarea se vincula al proyecto
+        }),
+      });
+
+      if (!response.ok) throw new Error("Error al crear tarea");
+
+      const newTaskData = await response.json();
+
+      // Agregar la nueva tarea al estado del proyecto
+      setProject((prev) =>
+        prev ? { ...prev, tasks: [...prev.tasks, newTaskData] } : null
+      );
+
+      setNewTaskTitle("");
+      setShowAddTaskInput(null);
+    } catch (err) {
+      console.error("Error:", err);
+      setError("Error al crear la tarea");
     }
+  };
 
-    if (error) {
-        return (
-            <div className="max-w-7xl mx-auto p-6 bg-white text-center">
-                <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-                <p className="text-gray-600 mb-4">{error}</p>
-                <button
-                    onClick={() => router.back()}
-                    className="bg-[#5a3d2b] text-white px-4 py-2 rounded-lg hover:bg-[#4a3527] transition"
-                >
-                    Volver al dashboard
-                </button>
-            </div>
-        );
-    }
-
-    if (!project) return null;
-
+  if (loading) {
     return (
-        <div className="max-w-7xl mx-auto p-6 bg-white min-h-screen">
-            
-
-            <div className="flex flex-row justify-between  items-start mb-8">
-                <div className='flex flex-col gap-8'>
-                    <h1 className="text-2xl font-medium text-gray-800">{project.name}</h1>
-                    <button
-                        onClick={addNewCategory}
-                        className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50"
-                    >
-                        <ListPlus size={18} className="text-red-400" />
-                        <span>Añadir lista de tareas</span>
-                    </button>
-                </div>
-                <button className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
-                    <UserPlus size={18} className="text-red-400" />
-                    <span>Añadir un miembro</span>
-                </button>
+      <div className="max-w-4xl mx-auto p-6 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-48 mb-8"></div>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="mb-8">
+            <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+            <div className="space-y-2">
+              {[1, 2].map((j) => (
+                <div key={j} className="h-12 bg-gray-100 rounded-lg"></div>
+              ))}
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {transformCategoriesToColumns().map((column) => (
-                    <div key={column.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="font-medium text-gray-800">{column.title}</h2>
-                            <button className="text-gray-500 hover:text-gray-700">
-                                <MoreVertical size={18} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-3 mb-4">
-                            {column.tasks.map((task) => (
-                                <div key={task.id} className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
-                                    {task.content}
-                                </div>
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={() => addNewTask(column.id)}
-                            className="flex items-center gap-2 text-sm w-full justify-center py-2 text-gray-500 hover:text-gray-700"
-                        >
-                            <Plus size={18} className="text-red-400" />
-                            <span>Añadir una nueva tarea</span>
-                        </button>
-                    </div>
-                ))}
-            </div>
-        </div>
+          </div>
+        ))}
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <h1 className="text-2xl text-red-600 mb-4">Error</h1>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <button
+          onClick={() => router.back()}
+          className="bg-[#5a3d2b] text-white px-4 py-2 rounded-lg hover:bg-[#4a3527]"
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl text-accent">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">{project?.name}</h1>
+        <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <UserPlus className="text-red-400" size={18} />
+          <span className="text-sm">Añadir miembro</span>
+        </button>
+      </div>
+
+      <div className="flex gap-6 mx-auto justify-center">
+  {project?.categories.map((category) => {
+    // Obtener tareas desde la categoría
+    const tasksForCategory = category.tasks || [];
+    console.log("testtttttt")
+    console.log(tasksForCategory)
+    return (
+      <section key={category._id} className="gap-2 mx-2 w-80 h-fit">
+        <div className="flex justify-between items-center mb-4 pr-3 pl-1">
+          <h2 className="font-normal text-lg">{category.name}</h2>
+          <button className="text-accent">
+            <MoreHorizontal size={18} />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          {tasksForCategory.length > 0 ? (
+            tasksForCategory.map((task) => (
+              <div
+                key={task._id}
+                className="bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-accent/5 flex flex-col gap-5 justify-between"
+              >
+                <div className="flex items-start w-full gap-2">
+                  <img src="/hexagon-icon.svg" className="w-5 h-5" />
+                  <h3 className="text-accent font-medium">{task.title}</h3>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2">
+                    <div className="badge badge-info gap-1 text-accent">
+                      {task.priority}
+                    </div>
+                    <div className="badge badge-info gap-1 text-accent">
+                      {task.status}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-end">
+                  {task.dueDate && (
+                    <span className="text-accent text-sm">
+                      {new Date(task.dueDate).toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No hay tareas en esta categoría.</p>
+          )}
+
+          {showAddTaskInput === category._id && (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                className="text-accent font-medium w-full p-1 border border-gray-300 rounded-md"
+                placeholder="Escribe el nombre de la tarea"
+                onKeyDown={(e) =>
+                  e.key === "Enter" && handleAddTask(category._id)
+                }
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 mt-5 opacity-70 justify-center cursor-pointer">
+          <button
+            onClick={() => {
+              setShowAddTaskInput(category._id);
+              setNewTaskTitle("");
+            }}
+            className="text-accent opacity-60"
+          >
+            <Plus size={20} />
+          </button>
+          <p className="text-accent">Añadir tarea</p>
+        </div>
+      </section>
+    );
+  })}
+</div>
+
+    </div>
+  );
 }

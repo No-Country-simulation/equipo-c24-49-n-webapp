@@ -86,6 +86,14 @@ export async function POST(request: Request) {
 
     const { projectId, name } = await request.json();
 
+    // Verificar si el projectId es válido
+    if (!projectId || !projectId.match(/^[0-9a-fA-F]{24}$/)) {
+      return NextResponse.json(
+        { error: "ID de proyecto no válido" },
+        { status: 400 }
+      );
+    }
+
     // Verificar permisos en el proyecto
     const project = await Project.findOne({
       _id: projectId,
@@ -111,9 +119,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // Crear la nueva categoría asegurando que tasks sea un array vacío
     const newCategory = new Category({
       name,
       project: projectId,
+      tasks: [], // Asegurar que inicia vacío
     });
 
     await newCategory.save();
@@ -123,7 +133,12 @@ export async function POST(request: Request) {
       $push: { categories: newCategory._id },
     });
 
-    return NextResponse.json(newCategory, { status: 201 });
+    // Verificar si se guardó correctamente y retornar los datos populados
+    const categoryWithTasks = await Category.findById(newCategory._id)
+      .populate("tasks", "title status")
+      .lean();
+
+    return NextResponse.json(categoryWithTasks, { status: 201 });
   } catch (error) {
     console.error("Error creating category:", error);
     return NextResponse.json(

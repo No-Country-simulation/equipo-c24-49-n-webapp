@@ -1,18 +1,13 @@
 import Project from "@/models/project";
 import Task from "@/models/task";
 import Category from "@/models/category";
-import User from "@/models/user";
 import { Types } from "mongoose";
 
 export const createDefaultProjects = async (userId: Types.ObjectId) => {
   try {
-    // Verificar si el usuario ya tiene proyectos por defecto creados
-    const existingUser = await User.findById(userId);
-    if (!existingUser) {
-      console.error("❌ Usuario no encontrado.");
-      return;
-    }
-    if (existingUser.hasDefaultProjects) return;
+    // Verificar si el usuario ya tiene proyectos
+    const existingProjects = await Project.find({ creator: userId });
+    if (existingProjects.length > 0) return;
 
     // Lista de proyectos por defecto
     const defaultProjects = [
@@ -41,30 +36,36 @@ export const createDefaultProjects = async (userId: Types.ObjectId) => {
 
     // Insertar proyectos y obtener sus IDs
     const createdProjects = await Project.insertMany(defaultProjects);
-    if (!createdProjects || createdProjects.length === 0) {
-      console.error("❌ No se pudieron crear los proyectos por defecto.");
-      return;
-    }
 
     for (const project of createdProjects) {
       // Crear categorías fijas asociadas al proyecto
       const categories = await Category.insertMany([
         { name: "En Proceso", project: project._id },
-        { name: "Hecho", project: project._id },
+        { name: "Finalizada", project: project._id },
         { name: "En Pausa", project: project._id },
       ]);
 
+      // Verificar si las categorías se crearon correctamente
       if (!categories || categories.length !== 3) {
         console.error("❌ Error: No se crearon correctamente todas las categorías.");
         return;
       }
 
+      // Obtener los IDs de las categorías creadas
+      const categoryIds = categories.map((category) => category._id);
+
+      // Actualizar el proyecto para incluir las categorías creadas
+      await Project.findByIdAndUpdate(project._id, {
+        $set: { categories: categoryIds },
+      });
+
+      // Crear mapa de categorías para asignarlas a las tareas
       const categoryMap: { [key: string]: Types.ObjectId } = {};
       categories.forEach((category) => {
         categoryMap[category.name] = category._id as Types.ObjectId;
       });
 
-      // Crear tareas asociadas a las categorías
+      // Crear tareas asegurando el uso correcto de los ObjectId
       const tasks = [
         {
           title: "Definir estructura de la página",
@@ -87,7 +88,7 @@ export const createDefaultProjects = async (userId: Types.ObjectId) => {
         {
           title: "Diseño final aprobado",
           description: "Aprobación final del diseño antes de pasar al desarrollo.",
-          category: categoryMap["Hecho"],
+          category: categoryMap["Finalizada"],
           priority: "Baja",
           status: "Finalizada",
           dueDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
@@ -95,14 +96,11 @@ export const createDefaultProjects = async (userId: Types.ObjectId) => {
         },
       ];
 
+      // Insertar tareas en la base de datos
       const tasksToCreate = tasks.map(taskData => new Task(taskData));
       const createdTasks = await Task.insertMany(tasksToCreate);
-      if (!createdTasks || createdTasks.length === 0) {
-        console.error("❌ No se pudieron crear las tareas por defecto.");
-        return;
-      }
 
-      // Agrupar tareas por categoría y actualizar las categorías en paralelo
+      // Agrupar tareas por categoría
       const tasksByCategory: { [key: string]: Types.ObjectId[] } = {};
       for (const task of createdTasks) {
         const categoryId = task.category.toString();
@@ -112,20 +110,13 @@ export const createDefaultProjects = async (userId: Types.ObjectId) => {
         tasksByCategory[categoryId].push(task._id);
       }
 
-      await Promise.all(
-        Object.entries(tasksByCategory).map(([categoryId, taskIds]) =>
-          Category.findByIdAndUpdate(categoryId, {
-            $push: { tasks: { $each: taskIds } },
-          })
-        )
-      );
+      // Actualizar todas las categorías de una sola vez
+      for (const [categoryId, taskIds] of Object.entries(tasksByCategory)) {
+        await Category.findByIdAndUpdate(categoryId, {
+          $push: { tasks: { $each: taskIds } },
+        });
+      }
     }
-
-    // Marcar que el usuario ya tiene los proyectos creados
-    existingUser.hasDefaultProjects = true;
-    await existingUser.save();
-
-    console.log("✅ Proyectos, categorías y tareas por defecto creados con éxito.");
   } catch (error) {
     console.error("❌ Error al crear los proyectos por defecto:", error);
   }

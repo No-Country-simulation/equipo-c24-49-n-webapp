@@ -1,4 +1,5 @@
-import  { Schema, model, models, Document, Model, Types } from "mongoose";
+import { createDefaultProjects } from "@/utils/defaultProjects";
+import { Schema, model, models, Document, Model, Types } from "mongoose";
 
 // Definir la interfaz del usuario
 export interface IUser extends Document {
@@ -8,6 +9,7 @@ export interface IUser extends Document {
   avatar: string;
   role: "admin" | "editor" | "viewer";
   projects: Types.ObjectId[];
+  hasDefaultProjects: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,11 +59,30 @@ const UserSchema = new Schema<IUser, IUserModel>(
         ref: "Project", // Referencia a la colección de proyectos
       },
     ],
+    hasDefaultProjects: {
+      type: Boolean,
+      default: false, // Indica si ya se han creado los proyectos por defecto
+    },
   },
   {
     timestamps: true, // Agrega createdAt y updatedAt automáticamente
   }
 );
+
+// Middleware que se ejecuta después de crear un usuario
+UserSchema.post("save", async function (user: IUser) {
+  try {
+    if (!user.hasDefaultProjects) {
+      console.log(`🚀 Creando proyectos por defecto para el usuario ${user._id}`);
+      await createDefaultProjects(new Types.ObjectId(user._id.toString()));
+
+      // Marcar que ya se han creado los proyectos por defecto
+      await user.updateOne({ hasDefaultProjects: true });
+    }
+  } catch (error) {
+    console.error("❌ Error al crear proyectos por defecto:", error);
+  }
+});
 
 // Método estático para buscar por email
 UserSchema.statics.findByEmail = function (email: string) {

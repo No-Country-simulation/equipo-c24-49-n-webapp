@@ -2,12 +2,15 @@ import { connectDB } from "@/libs/mongodb";
 import User from "@/models/user";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { createDefaultProjects } from "@/utils/defaultProjects";
+import { Types } from "mongoose";
 
 export async function POST(request: Request) {
   try {
     await connectDB();
 
-    const { email, password, fullname, avatar, role, projects } = await request.json();
+    const { email, password, fullname, avatar, role, projects } =
+      await request.json();
 
     // Validar la contraseña
     if (password.length < 6) {
@@ -42,7 +45,10 @@ export async function POST(request: Request) {
 
     // Guardar el usuario en la base de datos
     const savedUser = await user.save();
-    console.log(savedUser)
+    // 🔥 Crear proyectos automáticamente
+    await createDefaultProjects(new Types.ObjectId(savedUser._id.toString()));
+
+    console.log(savedUser);
 
     return NextResponse.json(
       {
@@ -55,8 +61,7 @@ export async function POST(request: Request) {
         updatedAt: savedUser.updatedAt,
       },
       { status: 201 }
-      
-    ); 
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(

@@ -11,11 +11,6 @@ interface Project {
   name: string;
   backgroundType?: string;
   backgroundColor?: string;
-  backgroundGradient?: {
-    color1: string;
-    color2: string;
-  };
-  backgroundImage?: string;
 }
 
 export default function Proyectos() {
@@ -31,6 +26,7 @@ export default function Proyectos() {
         throw new Error("No se pudieron cargar los proyectos");
       }
       const data = await response.json();
+      console.log("proyectos", data);
       setProjects(data.projects);
       setIsLoading(false);
     } catch (err) {
@@ -42,27 +38,18 @@ export default function Proyectos() {
   useEffect(() => {
     fetchProjects();
   }, []);
+  
   // Función para actualizar la lista de proyectos
   const handleProjectCreated = () => {
     fetchProjects(); // Vuelve a cargar los proyectos
   };
-  // Función para obtener el estilo de fondo del proyecto
+  
+  // Función para obtener el estilo de fondo radial del proyecto
   const getProjectBackground = (project: Project) => {
-    if (project.backgroundType === "color" && project.backgroundColor) {
-      return { backgroundColor: project.backgroundColor };
-    } else if (project.backgroundType === "gradient" && project.backgroundGradient) {
-      return {
-        background: `linear-gradient(to bottom right, ${project.backgroundGradient.color1}, ${project.backgroundGradient.color2})`,
-      };
-    } else if (project.backgroundType === "image" && project.backgroundImage) {
-      return {
-        backgroundImage: `url(${project.backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      };
-    } else {
-      return { backgroundColor: "#F0F0F0" }; // Fondo por defecto
-    }
+    const color = project.backgroundColor || "#FFFFFF";
+    return {
+      background: `radial-gradient(circle, #FFFFFF 30%, ${color} 100%)`,
+    };
   };
 
   if (isLoading) {
@@ -97,12 +84,12 @@ export default function Proyectos() {
 
       <AddProjectPopup onProjectCreated={handleProjectCreated} />
 
-      <div className=" flex justify-start items-start gap-[21px] flex-wrap content-start">
+      <div className="flex justify-start items-start gap-[21px] flex-wrap content-start">
         {projects.map((project) => (
           <div key={project._id} className="relative group w-[292px] h-[189px]">
             <Link href={`/dashboard/projects/${project._id}`}>
               <div
-                className="  rounded-2xl p- h-44 flex items-center justify-center "
+                className="rounded-2xl h-44 flex items-center justify-center shadow-sm"
                 style={getProjectBackground(project)}
               >
                 <h2 className="text-xl font-medium text-center text-[#5a3d2b]">

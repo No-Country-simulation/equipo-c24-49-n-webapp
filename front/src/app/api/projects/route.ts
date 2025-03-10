@@ -12,22 +12,22 @@ async function createDefaultCategories(
 ): Promise<Types.ObjectId[]> {
   const defaultCategories = [
     {
-      name: "En Proceso",
+      name: "Recientes",
+      project: projectId,
+      creator: creatorId,
+      description: "Tareas recientes",
+    },
+    {
+      name: "En curso",
       project: projectId,
       creator: creatorId,
       description: "Tareas en desarrollo activo",
     },
     {
-      name: "Hecho",
+      name: "Finalizada",
       project: projectId,
       creator: creatorId,
       description: "Tareas completadas",
-    },
-    {
-      name: "En Pausa",
-      project: projectId,
-      creator: creatorId,
-      description: "Tareas temporalmente detenidas",
     },
   ];
 
@@ -41,18 +41,21 @@ async function createDefaultCategories(
   });
 }
 
+// Función para obtener el color hexadecimal basado en el valor de fondo
 function getBackgroundColor(backgroundValue: string): string {
   switch (backgroundValue) {
     case "miel":
-      return "#FDE68A"; // Amarillo dorado
-    case "panal":
-      return "#FCD34D"; // Amarillo ámbar
-    case "nectar":
-      return "#FEF3C7"; // Naranja claro
-    case "polen":
-      return "#FEF9C3"; // Amarillo muy claro
-    case "cera":
-      return "#FEF9C3"; // Crema claro
+      return "#FDEFAE"; // hsla(49, 95%, 84%, 1)
+    case "rosa":
+      return "#FFE7E3"; // hsla(8, 100%, 95%, 1)
+    case "verde":
+      return "#4EAF00"; // Corregido para ser un color hexadecimal válido
+    case "nube":
+      return "#D7EDF2"; // hsla(191, 51%, 90%, 1)
+    case "patron-1":
+      return "#FFF7D2"; // hsla(49, 100%, 91%, 1)
+    case "patron-2":
+      return "#FFFFFF"; // hsla(0, 0%, 100%, 1)
     default:
       return "#FFFFFF";
   }
@@ -142,29 +145,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Determinar el tipo de fondo y sus propiedades
-    let backgroundType = "color";
-    let backgroundColor = "#FFFFFF";
-    let backgroundImage = null;
-
-    if (data.backgroundType === "image" && data.backgroundImage) {
-      backgroundType = "image";
-      backgroundImage = data.backgroundImage;
-    } else if (data.backgroundType === "gradient" && data.backgroundGradient) {
-      backgroundType = "gradient";
-      backgroundColor = data.backgroundGradient;
-    } else if (data.backgroundColor) {
-      backgroundColor = data.backgroundColor;
-    }
+    // Simplificamos para usar solo backgroundType 'color' y el color hexadecimal
+    const backgroundColor = getBackgroundColor(data.background || "");
 
     // Crear el nuevo proyecto
     const newProject = new Project({
       name: data.name,
       description: data.description || "",
       creator: new mongoose.Types.ObjectId(session.user._id),
-      backgroundType,
+      backgroundType: "color",
       backgroundColor,
-      backgroundImage,
       visibility: data.visibility,
     });
 
@@ -220,25 +210,22 @@ export async function PUT(request: Request) {
       );
     }
 
+    // Si hay un background nuevo, obtener el color hexadecimal
+    let backgroundColor = projectToUpdate.backgroundColor;
+    if (data.background) {
+      backgroundColor = getBackgroundColor(data.background);
+    }
+
     const updateData = {
       ...data,
-      backgroundType: data.backgroundType || projectToUpdate.backgroundType,
-      backgroundColor: data.backgroundColor || projectToUpdate.backgroundColor,
-      backgroundGradient: data.backgroundGradient
-        ? {
-            color1:
-              data.backgroundGradient.color1 ||
-              projectToUpdate.backgroundGradient?.color1,
-            color2:
-              data.backgroundGradient.color2 ||
-              projectToUpdate.backgroundGradient?.color2,
-            angle:
-              data.backgroundGradient.angle ||
-              projectToUpdate.backgroundGradient?.angle,
-          }
-        : projectToUpdate.backgroundGradient,
-      backgroundImage: data.backgroundImage || projectToUpdate.backgroundImage,
+      backgroundType: "color",
+      backgroundColor,
     };
+
+    // Eliminamos los campos que ya no utilizamos
+    delete updateData.backgroundGradient;
+    delete updateData.backgroundImage;
+    delete updateData.background;
 
     const updatedProject = await Project.findByIdAndUpdate(_id, updateData, {
       new: true,
@@ -293,4 +280,3 @@ export async function DELETE(request: Request) {
     );
   }
 }
-

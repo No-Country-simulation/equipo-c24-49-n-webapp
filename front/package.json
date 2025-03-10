@@ -16,6 +16,7 @@
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
     "file-loader": "^6.2.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.475.0",
     "mongodb": "^6.13.1",
     "mongoose": "^8.11.0",

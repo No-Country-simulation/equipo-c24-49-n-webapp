@@ -1,4 +1,4 @@
-import  { Schema, model, models, Document, Model, Types } from "mongoose";
+import { Schema, model, models, Document, Model, Types } from "mongoose";
 
 export type BackgroundType = 'color' | 'gradient' | 'image';
 
@@ -6,9 +6,9 @@ export interface IProject extends Document {
   name: string;
   description: string;
   creator: Types.ObjectId;
-  categories: Types.ObjectId[];
   channels: Types.ObjectId[];
-  collaborators: Types.ObjectId[]; 
+  collaborators: Types.ObjectId[];
+  categories: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   backgroundType?: BackgroundType;
@@ -35,7 +35,7 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
     },
     description: {
       type: String,
-      default: 'Agregar descripción', 
+      default: "Agregar descripción",
     },
     creator: {
       type: Schema.Types.ObjectId,
@@ -45,13 +45,7 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
     collaborators: [
       {
         type: Schema.Types.ObjectId,
-        ref: "ProjectCollaborator", 
-      },
-    ], 
-    categories: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: "ProjectCollaborator",
       },
     ],
     channels: [
@@ -60,37 +54,43 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
         ref: "Channel",
       },
     ],
+    categories: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
     backgroundType: {
       type: String,
-      enum: ['color', 'gradient', 'image'],
-      default: 'color'
+      enum: ["color", "gradient", "image"],
+      default: "color",
     },
     backgroundColor: {
       type: String,
-      default: '#FFFFFF' 
+      default: "#FFFFFF",
     },
     backgroundGradient: {
       color1: {
         type: String,
-        default: '#FFFFFF'
+        default: "#FFFFFF",
       },
       color2: {
         type: String,
-        default: '#F0F0F0'
+        default: "#F0F0F0",
       },
       angle: {
         type: Number,
-        default: 45
-      }
+        default: 45,
+      },
     },
     backgroundImage: {
       type: String,
-      default: null
+      default: null,
     },
     visibility: {
       type: String,
-      enum: ['privado', 'publico', 'equipo'],
-      default: 'privado'
+      enum: ["privado", "publico", "equipo"],
+      default: "privado",
     },
   },
   {
@@ -98,7 +98,6 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
   }
 );
 
-const Project = (models.Project as IProjectModel) || 
-  model<IProject, IProjectModel>("Project", ProjectSchema);
+const Project = (models.Project as IProjectModel) || model<IProject, IProjectModel>("Project", ProjectSchema);
 
 export default Project;

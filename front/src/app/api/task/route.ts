@@ -4,6 +4,7 @@ import Category from "@/models/category";
 import { connectDB } from "@/libs/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./../auth/[...nextauth]/options";
+import mongoose from "mongoose";
 
 export async function GET(request: Request) {
   try {
@@ -66,13 +67,14 @@ export async function GET(request: Request) {
     const totalTasks = await Task.countDocuments(query);
     const totalPages = Math.ceil(totalTasks / limit);
 
-    const tasks = (await Task.find(query)
+    const TaskModel = mongoose.model('Task');
+    const tasks = await TaskModel.find(query)
       .populate("category", "name")
       .populate("assignedTo", "fullname email avatar")
       .lean()
       .sort({ dueDate: 1 })
       .skip((page - 1) * limit)
-      .limit(limit)) as ITask[];
+      .limit(limit);
 
     return NextResponse.json({
       tasks,
@@ -177,7 +179,8 @@ export async function PUT(request: Request) {
     const { _id, ...data } = await request.json();
 
     // Obtener tarea y verificar permisos
-    const task = await Task.findById(_id).populate({
+    const TaskModel = mongoose.model('Task');
+    const task = await TaskModel.findById(_id).populate({
       path: "category",
       populate: {
         path: "project",
@@ -210,7 +213,7 @@ export async function PUT(request: Request) {
       isAssignedUser &&
       Object.keys(data).every((k) => k === "status")
     ) {
-      const updatedTask = await Task.findByIdAndUpdate(
+      const updatedTask = await TaskModel.findByIdAndUpdate(
         _id,
         { status: data.status },
         { new: true }
@@ -227,7 +230,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(_id, data, {
+    const updatedTask = await TaskModel.findByIdAndUpdate(_id, data, {
       new: true,
       runValidators: true,
     });
@@ -256,7 +259,8 @@ export async function DELETE(request: Request) {
     const { _id } = await request.json();
 
     // Verificar permisos
-    const task = await Task.findById(_id).populate({
+    const TaskModel = mongoose.model('Task');
+    const task = await TaskModel.findById(_id).populate({
       path: "category",
       populate: {
         path: "project",
@@ -290,7 +294,7 @@ export async function DELETE(request: Request) {
 
     // Eliminar tarea y su referencia en la categoría
     await Promise.all([
-      Task.findByIdAndDelete(_id),
+      TaskModel.findByIdAndDelete(_id),
       Category.findByIdAndUpdate(task.category, {
         $pull: { tasks: _id },
       }),

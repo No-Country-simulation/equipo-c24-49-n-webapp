@@ -4,15 +4,22 @@ import { FormEvent, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import Loader from "@/components/Loader";
 
 
 const Register = () => {
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const toastId = toast.loading("Registrando usuario...");
     try {
       const formData = new FormData(event.currentTarget);
 
@@ -21,12 +28,10 @@ const Register = () => {
         email: formData.get("email"),
         password: formData.get("password"),
         fullname: formData.get("fullname"),
-        avatar: "", // Inicialmente vacío, el usuario puede subir un avatar después
-        role: "viewer", // Rol por defecto
-        projects: [], // Inicialmente sin proyectos
+        avatar: "",
+        role: "viewer",
+        projects: [],
       });
-
-      console.log(signupResponse);
 
       // Iniciar sesión automáticamente después del registro
       const res = await signIn("credentials", {
@@ -35,83 +40,67 @@ const Register = () => {
         redirect: false,
       });
 
+      toast.dismiss(toastId);
+      setLoading(false);
+
       if (res?.ok) {
-        router.push("/dashboard/profile"); // Redirigir al perfil después del registro
+        toast.success("Registro exitoso 🎉");
+        router.push("/dashboard");
       } else {
         setError("Error al iniciar sesión después del registro");
+        toast.error("Error al iniciar sesión después del registro");
       }
     } catch (error) {
-      console.log(error);
+      toast.dismiss(toastId);
+      setLoading(false);
       if (error instanceof AxiosError) {
         const errorMessage = error.response?.data.message || "Error en el registro";
         setError(errorMessage);
+        toast.error(errorMessage);
       } else {
         setError("Ocurrió un error inesperado");
+        toast.error("Ocurrió un error inesperado");
       }
     }
   };
 
-  if (status === "loading") {
-    return <p className="text-center text-primary">Cargando...</p>;
-  }
+  if (status === "loading") return <Loader/>
 
   return (
     <div className="min-h-screen flex justify-center sm:overflow-hidden overflow-visible">
-      {/* <Navbar /> */}
-
       <div className="relative mt-8 md:mt-18 flex-1 grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto">
-        {/* Columna Izquierda - Formulario */}
         <div className="relative flex items-center justify-center p-6">
           <div className="w-full max-w-md">
             <div className="card">
               <div className="card-body">
-                <h1 className="card-title text-3xl text-primary mb-6">
-                  Regístrate
-                </h1>
-
-                {/* Mostrar errores */}
-                {error && (
-                  <div className="bg-red-500 text-white p-2 mb-4 rounded">
-                    {error}
-                  </div>
-                )}
-
-                {/* Botones Sociales */}
+                <h1 className="card-title text-3xl text-primary mb-6">Regístrate</h1>
+                {error && <div className="bg-red-500 text-white p-2 mb-4 rounded">{error}</div>}
                 <div className="flex flex-col gap-3">
                   <button
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
                     onClick={() => signIn("google", { callbackUrl: "/dashboard/profile" })}
+                    disabled={loading}
                   >
-                    <img
-                      src="/google-icon.svg"
-                      className="w-5 h-5"
-                      alt="Google"
-                    />
+                    <img src="/google-icon.svg" className="w-5 h-5" alt="Google" />
                     Continuar con Google
                   </button>
 
                   <button
                     className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
                     onClick={() => signIn("apple", { callbackUrl: "/dashboard/profile" })}
+                    disabled={loading}
                   >
-                    <img
-                      src="/apple-icon.svg"
-                      className="w-5 h-5"
-                      alt="Apple"
-                    />
+                    <img src="/apple-icon.svg" className="w-5 h-5" alt="Apple" />
                     Continuar con Apple
                   </button>
                 </div>
 
                 <div className="divider text-primary my-2"></div>
 
-                {/* Formulario */}
                 <form onSubmit={handleSubmit}>
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text text-primary font-semibold">
-                        Nombre Completo
-                      </span>
+                      <span className="label-text text-primary font-semibold">Nombre Completo</span>
                     </label>
                     <input
                       type="text"
@@ -119,14 +108,13 @@ const Register = () => {
                       placeholder="Introduce tu nombre completo..."
                       className="input input-bordered"
                       required
+                      disabled={loading}
                     />
                   </div>
 
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text text-primary font-semibold">
-                        Email
-                      </span>
+                      <span className="label-text text-primary font-semibold">Email</span>
                     </label>
                     <input
                       type="email"
@@ -134,14 +122,13 @@ const Register = () => {
                       placeholder="Introduce tu email..."
                       className="input input-bordered"
                       required
+                      disabled={loading}
                     />
                   </div>
 
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text text-primary font-semibold">
-                        Contraseña
-                      </span>
+                      <span className="label-text text-primary font-semibold">Contraseña</span>
                     </label>
                     <input
                       type="password"
@@ -150,18 +137,17 @@ const Register = () => {
                       className="input input-bordered"
                       required
                       minLength={6}
+                      disabled={loading}
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    className="btn btn-primary w-full mt-8"
-                  >
-                    Registrarme
+                  <button type="submit" className="btn btn-primary w-full mt-8" disabled={loading}>
+                    {loading ? "Registrando..." : "Registrarme"}
                   </button>
                 </form>
-                <p>¿Ya tienes cuenta? <a href="/login" className="link cursor-pointer"> Inicia sesión</a> </p>
-
+                <p>
+                  ¿Ya tienes cuenta? <a href="/login" className="link cursor-pointer">Inicia sesión</a>
+                </p>
               </div>
             </div>
           </div>

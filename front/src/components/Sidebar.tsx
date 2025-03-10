@@ -125,8 +125,8 @@ leading-loose text-[#3d2c00]"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M229 133.229C228.892 110.677 210.577 92.4281 188 92.4281H25.8136C11.5571 92.4281 0 80.871 0 66.6145C0 52.3581 11.5571 40.8009 25.8136 40.8009H188C210.577 40.8009 228.892 22.5521 229 0V133.229Z"
                       fill="#FFFFFF"
                     />

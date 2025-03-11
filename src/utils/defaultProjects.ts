@@ -39,20 +39,20 @@ export const createDefaultProjects = async (userId: Types.ObjectId) => {
 
     // Crear categorías para cada proyecto
     const categoriesProject1 = await Category.insertMany([
-      { name: "En Proceso", project: project1._id },
-      { name: "En Pausa", project: project1._id },
+      { name: "En curso", project: project1._id },
+      { name: "En pausa", project: project1._id },
       { name: "Finalizada", project: project1._id },
     ]);
 
     const categoriesProject2 = await Category.insertMany([
-      { name: "En Proceso", project: project2._id },
-      { name: "En Pausa", project: project2._id },
+      { name: "En curso", project: project2._id },
+      { name: "En pausa", project: project2._id },
       { name: "Finalizada", project: project2._id },
     ]);
 
     const categoriesProject3 = await Category.insertMany([
-      { name: "En Proceso", project: project3._id },
-      { name: "En Pausa", project: project3._id },
+      { name: "En curso", project: project3._id },
+      { name: "En pausa", project: project3._id },
       { name: "Finalizada", project: project3._id },
     ]);
 

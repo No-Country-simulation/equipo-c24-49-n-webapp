@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Plus, UserPlus, MoreHorizontal, Heart, Edit2, Trash2 } from "lucide-react";
+import {
+  Plus,
+  UserPlus,
+  MoreHorizontal,
+  Heart,
+  Edit2,
+  Trash2,
+} from "lucide-react";
 import Loader from "@/components/Loader";
 
 interface Task {
@@ -30,15 +37,21 @@ interface Project {
 }
 
 export default function ProjectPage() {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
   const { id } = useParams();
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [showAddTaskInput, setShowAddTaskInput] = useState<string | null>(null);
+  const [newTaskLike, setNewTaskLike] = useState(false);
+  const [showDateInput, setShowDateInput] = useState(false);
 
   // Estados para el formulario de nueva tarea
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newTaskPriority, setNewTaskPriority] = useState<"Alta" | "Media" | "Baja">("Baja");
+  const [newTaskPriority, setNewTaskPriority] = useState<
+    "Alta" | "Media" | "Baja"
+  >("Baja");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -64,7 +77,12 @@ export default function ProjectPage() {
   }, [id]);
 
   const handleAddTask = async (categoryId: string) => {
-    if (!newTaskTitle.trim() || !newTaskDueDate) return;
+    if (!newTaskTitle.trim()) return;
+
+    // Si no se ingresa fecha, se utiliza la fecha de hoy
+    const dueDateToUse = newTaskDueDate.trim()
+      ? newTaskDueDate
+      : new Date().toISOString();
 
     try {
       const response = await fetch("/api/task", {
@@ -76,14 +94,14 @@ export default function ProjectPage() {
           category: categoryId,
           priority: newTaskPriority,
           projectId: project?._id,
-          dueDate: newTaskDueDate,
-          like: false
+          dueDate: dueDateToUse,
+          like: newTaskLike,
         }),
       });
 
       if (!response.ok) throw new Error("Error al crear tarea");
-
       const newTaskData = await response.json();
+      console.log(newTaskData)
 
       setProject((prev) =>
         prev
@@ -102,6 +120,7 @@ export default function ProjectPage() {
       setNewTaskTitle("");
       setNewTaskDescription("");
       setNewTaskPriority("Baja");
+      setNewTaskLike(false);
       setNewTaskDueDate("");
       setShowAddTaskInput(null);
     } catch (err) {
@@ -136,7 +155,6 @@ export default function ProjectPage() {
       console.error("Error in handleLikeTask:", err);
     }
   };
-  
 
   const handleDeleteTask = async (taskId: string) => {
     try {
@@ -205,30 +223,31 @@ export default function ProjectPage() {
               </div>
 
               <div className="flex flex-col gap-5">
+                {/* Aquí se muestran las tareas existentes */}
                 {tasksForCategory.length > 0 ? (
                   tasksForCategory.map((task) => {
-
                     let priorityBadgeClass = "badge-info";
                     if (task.priority === "Media") {
                       priorityBadgeClass = "badge-warning";
                     } else if (task.priority === "Alta") {
                       priorityBadgeClass = "badge-error";
                     }
-
                     let statusBadgeClass = "badge-warning";
                     if (task.status === "Finalizada") {
                       statusBadgeClass = "badge-success";
                     }
-
                     return (
                       <div
                         key={task._id}
                         className="relative group bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-accent/5 flex flex-col gap-5 justify-between"
                       >
-                        {/* Dropdown de edición (aparece al hover en la esquina superior derecha) */}
+                        {/* Dropdown de edición en la esquina superior derecha */}
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <div className="dropdown dropdown-end">
-                            <label tabIndex={0} className="btn btn-ghost btn-xs">
+                            <label
+                              tabIndex={0}
+                              className="btn btn-ghost btn-xs"
+                            >
                               <Edit2 size={16} className="text-accent" />
                             </label>
                             <ul
@@ -236,7 +255,11 @@ export default function ProjectPage() {
                               className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40"
                             >
                               <li>
-                                <a onClick={() => console.log("Editar tarea", task._id)}>
+                                <a
+                                  onClick={() =>
+                                    console.log("Editar tarea", task._id)
+                                  }
+                                >
                                   Editar
                                 </a>
                               </li>
@@ -251,15 +274,21 @@ export default function ProjectPage() {
 
                         <div className="flex items-start w-full gap-2">
                           <img src="/hexagon-icon.svg" className="w-5 h-5" />
-                          <h3 className="text-accent font-medium">{task.title}</h3>
+                          <h3 className="text-accent font-medium">
+                            {task.title}
+                          </h3>
                         </div>
 
                         <div className="flex justify-between items-center">
                           <div className="flex gap-2">
-                            <div className={`badge ${priorityBadgeClass} gap-1 text-accent`}>
+                            <div
+                              className={`badge ${priorityBadgeClass} gap-1 text-accent`}
+                            >
                               {task.priority}
                             </div>
-                            <div className={`badge ${statusBadgeClass} gap-1 text-accent`}>
+                            <div
+                              className={`badge ${statusBadgeClass} gap-1 text-accent`}
+                            >
                               {task.status}
                             </div>
                           </div>
@@ -268,70 +297,126 @@ export default function ProjectPage() {
                         <div className="flex justify-between items-end">
                           {task.dueDate && (
                             <span className="text-accent text-sm">
-                              {new Date(task.dueDate).toLocaleDateString("es-ES", {
-                                day: "numeric",
-                                month: "short",
-                              })}
+                              {new Date(task.dueDate).toLocaleDateString(
+                                "es-ES",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                }
+                              )}
                             </span>
                           )}
                         </div>
-                        {/* Botón de like (corazón) en la esquina inferior derecha */}
+
+                        {/* Botón de like en la esquina inferior derecha */}
                         <button
-                          onClick={() => handleLikeTask(task._id, task.like || false)}
-                          className="absolute bottom-2 right-2 "
+                          onClick={() =>
+                            handleLikeTask(task._id, task.like || false)
+                          }
+                          className="absolute bottom-2 right-2"
                         >
                           <Heart
                             size={20}
-                            className={task.like ? " text-primary " : " text-accent "}
+                            className={
+                              task.like ? "text-primary" : "text-accent"
+                            }
                           />
                         </button>
                       </div>
                     );
                   })
                 ) : (
-                  <p className="text-gray-500">No hay tareas en esta categoría.</p>
+                  <p className="text-gray-500">
+                    No hay tareas en esta categoría.
+                  </p>
                 )}
 
+                {/* Área de "Añadir tarea" con la misma estructura que la card */}
+
                 {showAddTaskInput === category._id && (
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col gap-3">
-                    <input
-                      type="text"
-                      value={newTaskTitle}
-                      onChange={(e) => setNewTaskTitle(e.target.value)}
-                      className="text-accent font-medium w-full p-2 border border-gray-300 rounded-md"
-                      placeholder="Título de la tarea"
-                    />
-                    <textarea
-                      value={newTaskDescription}
-                      onChange={(e) => setNewTaskDescription(e.target.value)}
-                      className="text-accent font-medium w-full p-2 border border-gray-300 rounded-md"
-                      placeholder="Descripción de la tarea"
-                    />
-                    <select
-                      value={newTaskPriority}
-                      onChange={(e) =>
-                        setNewTaskPriority(e.target.value as "Alta" | "Media" | "Baja")
-                      }
-                      className="text-accent font-medium w-full p-2 border border-gray-300 rounded-md"
-                    >
-                      <option value="Alta">Alta</option>
-                      <option value="Media">Media</option>
-                      <option value="Baja">Baja</option>
-                    </select>
-                    <input
-                      type="date"
-                      value={newTaskDueDate}
-                      onChange={(e) => setNewTaskDueDate(e.target.value)}
-                      className="text-accent font-medium w-full p-2 border border-gray-300 rounded-md"
-                    />
-                    <button
-                      onClick={() => handleAddTask(category._id)}
-                      className="bg-[#5a3d2b] text-white px-4 py-2 rounded-lg hover:bg-[#4a3527]"
-                    >
-                      Crear tarea
-                    </button>
-                  </div>
-                )}
+  <div className="relative bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-dotted border-gray-200 flex flex-col gap-5 justify-between">
+    {/* Línea superior: icono y input para el título sin bordes */}
+    <div className="flex items-center gap-2">
+      <img src="/hexagon-icon.svg" className="w-5 h-5" />
+      <input
+        type="text"
+        value={newTaskTitle}
+        onChange={(e) => setNewTaskTitle(e.target.value)}
+        onBlur={() => {
+          if (newTaskTitle.trim()) {
+            handleAddTask(category._id);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && newTaskTitle.trim()) {
+            handleAddTask(category._id);
+          }
+        }}
+        className="text-accent font-medium flex-1 focus:outline-none"
+        placeholder="Título de la tarea"
+      />
+    </div>
+
+    {/* Segunda línea: Badge de prioridad, icono de calendario y botón de like */}
+    <div className="flex justify-between items-center">
+      {/* Badge de prioridad con dropdown */}
+      <div className="dropdown">
+        <button tabIndex={0} className="badge badge-lg bg-gray-300 text-accent">
+          {newTaskPriority}
+        </button>
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+        >
+          <li>
+            <a onClick={() => setNewTaskPriority("Alta")}>Alta</a>
+          </li>
+          <li>
+            <a onClick={() => setNewTaskPriority("Media")}>Media</a>
+          </li>
+          <li>
+            <a onClick={() => setNewTaskPriority("Baja")}>Baja</a>
+          </li>
+        </ul>
+      </div>
+
+      {/* Botón de calendario: al click se llama a showPicker() del input oculto */}
+      <button
+        onClick={() => dateInputRef.current?.showPicker()}
+        className="btn btn-ghost"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-accent"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      </button>
+      {/* Input de fecha oculto */}
+      <input
+        type="date"
+        ref={dateInputRef}
+        value={newTaskDueDate}
+        onChange={(e) => setNewTaskDueDate(e.target.value)}
+        className="hidden"
+      />
+
+      {/* Botón de corazón para togglear "like" en la nueva tarea */}
+      <button onClick={() => setNewTaskLike((prev) => !prev)}>
+        <Heart size={20} className={newTaskLike ? "text-primary" : "text-accent"} />
+      </button>
+    </div>
+  </div>
+)}
+
               </div>
 
               <div className="flex gap-2 mt-5 opacity-70 justify-center cursor-pointer">

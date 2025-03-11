@@ -106,6 +106,8 @@ export async function POST(request: Request) {
       title,
       description,
       category: categoryId,
+      status,
+      priority,
       dueDate,
       assignedTo,
       like
@@ -122,7 +124,7 @@ export async function POST(request: Request) {
     // Buscar la categoría y poblar el proyecto
     const category = await Category.findById(categoryId).populate({
       path: "project",
-      select: "creator collaborators",
+      select: "creator collaborators name",
     });
 
     if (!category) {
@@ -152,7 +154,9 @@ export async function POST(request: Request) {
       description,
       project: project._id,
       category: categoryId,
-      dueDate: new Date(dueDate), // Asegúrate de que dueDate venga en formato válido
+      status: category.name,
+      priority: priority,
+      dueDate: new Date(dueDate), 
       like: like,
       assignedTo: assignedTo || null,
     });

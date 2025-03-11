@@ -1,11 +1,4 @@
-/**
- * Configuración de autenticación para NextAuth.js
- *
- * Esta configuración permite la autenticación mediante credenciales (email y contraseña)
- * y Google OAuth, usando una base de datos MongoDB para almacenar los usuarios.
- */
 import { Types } from "mongoose";
-
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -14,19 +7,19 @@ import User from "@/models/user";
 import bcrypt from "bcryptjs";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import client from "@/libs/db";
+import { createDefaultProjects } from "@/utils/defaultProjects";
 
 export const authOptions: AuthOptions = {
-  secret: process.env.AUTH_SECRET, // Secreto para firmar tokens JWT
+  secret: process.env.AUTH_SECRET,
 
-  // Adaptador de base de datos MongoDB
   adapter: MongoDBAdapter(client) as any,
 
-  // Proveedores de autenticación
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID || "",
       clientSecret: process.env.AUTH_GOOGLE_SECRET || "",
     }),
+
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -34,10 +27,6 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
 
-      /**
-       * Función de autorización para el proveedor de credenciales
-       * Verifica si el usuario existe y si la contraseña es correcta
-       */
       async authorize(credentials) {
         if (!credentials) {
           throw new Error("No credentials provided");
@@ -82,6 +71,7 @@ export const authOptions: AuthOptions = {
             projects: userFound.projects.map((p: Types.ObjectId) =>
               p.toString()
             ),
+            hasDefaultProjects: userFound.hasDefaultProjects,
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
           };
@@ -94,18 +84,14 @@ export const authOptions: AuthOptions = {
   ],
 
   pages: {
-    signIn: "/login", // Página personalizada de inicio de sesión
+    signIn: "/login",
   },
 
   session: {
-    strategy: "jwt", // Usa JWT para la gestión de sesiones
+    strategy: "jwt",
   },
 
   callbacks: {
-    /**
-     * Callback para personalizar el token JWT
-     * Se ejecuta al iniciar sesión para agregar información adicional al token
-     */
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
@@ -118,17 +104,13 @@ export const authOptions: AuthOptions = {
         token.updatedAt = user.updatedAt;
       }
 
-      // 🔥 Si el usuario actualiza la sesión manualmente (ej: cambio de avatar)
       if (trigger === "update" && session?.avatar) {
-        token.avatar = session.avatar; // Actualiza el avatar en el token
+        token.avatar = session.avatar;
       }
 
       return token;
     },
-    /**
-     * Callback para personalizar la sesión del usuario
-     * Se ejecuta cada vez que se solicita la sesión
-     */
+
     async session({ session, token }) {
       session.user = {
         ...session.user,
@@ -141,6 +123,8 @@ export const authOptions: AuthOptions = {
         createdAt: token.createdAt as Date,
         updatedAt: token.updatedAt as Date,
       };
+      console.log(session);
+
       return session;
     },
   },
@@ -154,6 +138,15 @@ export const authOptions: AuthOptions = {
     },
     async createUser(message) {
       console.log("User created", message);
+
+      // Crear proyectos por defecto para el nuevo usuario
+      try {
+        const userId = new Types.ObjectId(message.user.id);
+        await createDefaultProjects(userId);
+        console.log("Default projects created for user:", userId);
+      } catch (error) {
+        console.error("Error creating default projects:", error);
+      }
     },
   },
 };

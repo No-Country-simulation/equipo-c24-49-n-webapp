@@ -1,7 +1,7 @@
 "use client"
 
 import { kodchasan } from "@/components/ui/fonts";
-import DashboardCard from "@/components/UserCard";
+import DashboardCard from "@/components/DashboardCard";
 
 export default function Page() {
   return (

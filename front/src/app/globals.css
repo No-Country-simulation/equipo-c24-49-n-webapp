@@ -14,8 +14,14 @@
   --font-kokoro: 'Kokoro', Arial, Helvetica, sans-serif;
 }
 
-body {
+html, body {
   font-family: 'Kodchasan', Arial, Helvetica, sans-serif;
+  /*↓↓↓ pantalla presentación - borrar en responsive ↓↓↓*/
+  max-width: 1280px;
+  height: 832px;
+  margin: 0 auto;
+  overflow: hidden;
+  /*↑↑↑  Eliminar en Responsive  ↑↑↑*/
 }
 
 h1, h2, h3, h4, h5, h6 {

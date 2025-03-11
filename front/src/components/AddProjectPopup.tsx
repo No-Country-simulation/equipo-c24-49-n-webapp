@@ -5,12 +5,14 @@ import { X } from "lucide-react";
 
 // Opciones de colores de fondo
 const backgroundOptions = [
-  { value: "miel", label: "Miel", color: "#FDEFAE" },
-  { value: "nube", label: "Nube", color: "#D7EDF2" },
-  { value: "rosa", label: "Rosa", color: "#FFE7E3" },
-  { value: "verde", label: "Verde", color: "#E1F1D5" },
-  { value: "patron-1", label: "Patrón 1", color: "#FFF7D2" },
-  { value: "patron-2", label: "Patrón 2", color: "#FFFFFF" },
+  { value: "miel", label: "Miel", image: "/covers/miel.svg" },
+  { value: "nube", label: "Nube", image: "/covers/nube.svg" },
+  { value: "rosa", label: "Rosa", image: "/covers/rosa.svg" },
+  { value: "verde", label: "Verde", image: "/covers/verde.svg" },
+  { value: "patron-1", label: "Patrón 1", image: "/covers/patron-1.svg" },
+  { value: "patron-2", label: "Patrón 2", image: "/covers/patron-2.svg" },
+  { value: "patron-3", label: "Patrón 3", image: "/covers/patron-3.svg" },
+  { value: "patron-4", label: "Patrón 4", image: "/covers/patron-4.svg" },
 ];
 
 // Opciones de visibilidad
@@ -30,7 +32,7 @@ interface AddProjectPopupProps {
 export default function AddProjectPopup({
   onProjectCreated,
   isOpen: externalIsOpen,
-  setIsOpen: externalSetIsOpen
+  setIsOpen: externalSetIsOpen,
 }: AddProjectPopupProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
@@ -46,6 +48,12 @@ export default function AddProjectPopup({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Obtener la ruta completa de la imagen seleccionada
+      const selectedBackground = backgroundOptions.find(
+        (opt) => opt.value === background
+      );
+      const backgroundImage = selectedBackground ? selectedBackground.image : "";
+  
       const response = await fetch("/api/projects", {
         method: "POST",
         headers: {
@@ -53,25 +61,25 @@ export default function AddProjectPopup({
         },
         body: JSON.stringify({
           name: projectName,
-          background,
+          backgroundImage, // Envía la ruta completa de la imagen
           visibility,
         }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Error al crear el proyecto");
       }
-
+  
       const newProject = await response.json();
       console.log("Proyecto creado:", newProject);
-
+  
       // Reset
       setProjectName("");
       setBackground("");
       setVisibility("privado");
       setIsOpen(false);
-
+  
       // Actualizar
       if (onProjectCreated) {
         onProjectCreated();
@@ -81,17 +89,8 @@ export default function AddProjectPopup({
     }
   };
 
-  // Colores de fondo
-  const getRadialPreview = (colorValue: string) => {
-    const bgColor = backgroundOptions.find(opt => opt.value === colorValue)?.color || "#FFFFFF";
-    return {
-      background: `radial-gradient(circle, ${bgColor} 30%, ${bgColor} 100%)`,
-    };
-  };
-
   return (
     <>
-
       <button
         onClick={() => setIsOpen(true)}
         className="inline-flex items-center gap-2 border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#5a3d2b] mb-10 hover:bg-gray-50 transition-colors"
@@ -99,7 +98,6 @@ export default function AddProjectPopup({
         <img src="/icons/square-plus-border.svg" alt="Añadir proyecto" />
         Añadir proyecto
       </button>
-
 
       {/* Modal/Popup */}
       {isOpen && (
@@ -112,11 +110,14 @@ export default function AddProjectPopup({
               <X className="h-6 w-6" />
             </button>
 
-            <h2 className="text-[16px] font-semibold text-[#3D2C00] text-accent mb-0 font-kodchasan w-[354px] mx-auto pt-10">
+            <h2 className="text-[16px] font-semibold text-accent mb-0 font-kodchasan w-[354px] mx-auto pt-10">
               Añadir proyecto
             </h2>
             <div className="divider"></div>
-            <form onSubmit={handleSubmit} className="space-y-4 text-[13px] w-[354px] mx-auto py-4">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4 text-[13px] w-[354px] mx-auto py-4"
+            >
               <div>
                 <label
                   htmlFor="projectName"
@@ -147,21 +148,27 @@ export default function AddProjectPopup({
                   >
                     <div className="flex items-center gap-3">
                       {background && (
-                        <div
-                          className="w-6 h-6 rounded-full border border-gray-300"
-                          style={getRadialPreview(background)}
-                        ></div>
+                        <img
+                          src={
+                            backgroundOptions.find(
+                              (opt) => opt.value === background
+                            )?.image
+                          }
+                          className="w-6 h-6 object-cover rounded-full border border-gray-300"
+                        ></img>
                       )}
                       <span>
                         {background
                           ? backgroundOptions.find(
-                            (opt) => opt.value === background
-                          )?.label
+                              (opt) => opt.value === background
+                            )?.label
                           : "Selecciona un color"}
                       </span>
                     </div>
                     <svg
-                      className={`h-5 w-5 text-gray-500 transform transition-transform ${isBackgroundOpen ? "rotate-180" : ""}`}
+                      className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                        isBackgroundOpen ? "rotate-180" : ""
+                      }`}
                       viewBox="0 0 20 20"
                       fill="#3D2C00"
                     >
@@ -181,19 +188,21 @@ export default function AddProjectPopup({
                         return (
                           <li
                             key={option.value}
-                            className={`px-4 py-2 ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"} cursor-pointer flex items-center justify-between`}
+                            className={`px-4 py-2 ${
+                              isSelected ? "bg-gray-100" : "hover:bg-gray-100"
+                            } cursor-pointer flex items-center justify-between`}
                             onClick={() => {
                               setBackground(option.value);
                               setIsBackgroundOpen(false);
                             }}
                           >
                             <div className="flex items-center gap-3">
-                              <div
-                                className="w-6 h-6 rounded-full border border-gray-300"
-                                style={{
-                                  background: `radial-gradient(circle, ${option.color} 50%, ${option.color} 100%)`,
-                                }}
-                              ></div>
+                              <img
+                                src={option.image}
+                                className=" w-6 h-6 object-cover overflow-hidden rounded-full border border-gray-300 "
+                                alt={option.label}
+                              />
+
                               <span>{option.label}</span>
                             </div>
                             {isSelected && (
@@ -233,9 +242,14 @@ export default function AddProjectPopup({
                     onClick={() => setIsVisibilityOpen(!isVisibilityOpen)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center justify-between"
                   >
-                    {visibilityOptions.find(opt => opt.value === visibility)?.label}
+                    {
+                      visibilityOptions.find((opt) => opt.value === visibility)
+                        ?.label
+                    }
                     <svg
-                      className={`h-5 w-5 transform transition-transform ${isVisibilityOpen ? "rotate-180" : ""}`}
+                      className={`h-5 w-5 transform transition-transform ${
+                        isVisibilityOpen ? "rotate-180" : ""
+                      }`}
                       viewBox="0 0 20 20"
                       fill="#3D2C00"
                     >
@@ -254,7 +268,9 @@ export default function AddProjectPopup({
                         return (
                           <li
                             key={option.value}
-                            className={`px-4 py-2 ${isSelected ? "bg-gray-100" : "hover:bg-gray-100"} cursor-pointer flex items-center justify-between`}
+                            className={`px-4 py-2 ${
+                              isSelected ? "bg-gray-100" : "hover:bg-gray-100"
+                            } cursor-pointer flex items-center justify-between`}
                             onClick={() => {
                               setVisibility(option.value);
                               setIsVisibilityOpen(false);
@@ -299,3 +315,72 @@ export default function AddProjectPopup({
     </>
   );
 }
+
+//       {isOpen && (
+//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+//           <div className="bg-white rounded-[10px] w-[426px] max-w-md mx-4 relative shadow-xl">
+//             <button
+//               onClick={() => setIsOpen(false)}
+//               className="absolute top-10 right-4 text-gray-400 hover:text-gray-600"
+//             >
+//               <X className="h-6 w-6" />
+//             </button>
+
+//             <h2 className="text-[16px] font-semibold text-[#3D2C00] text-accent mb-0 font-kodchasan w-[354px] mx-auto pt-10">
+//               Añadir proyecto
+//             </h2>
+//             <div className="divider"></div>
+//             <form onSubmit={handleSubmit} className="space-y-4 text-[13px] w-[354px] mx-auto py-4">
+//               <div>
+//                 <label className="block font-semibold text-accent mb-4">Nombre</label>
+//                 <input
+//                   type="text"
+//                   value={projectName}
+//                   onChange={(e) => setProjectName(e.target.value)}
+//                   placeholder="Escribe el nombre de tu proyecto"
+//                   required
+//                   className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+//                 />
+//               </div>
+
+//               <div>
+//                 <label className="block font-bold text-gray-700 mt-6 mb-4">Fondo</label>
+//                 <select
+//                   className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+//                   value={background}
+//                   onChange={(e) => setBackground(e.target.value)}
+//                 >
+//                   {backgroundOptions.map((option) => (
+//                     <option key={option.value} value={option.value}>{option.label}</option>
+//                   ))}
+//                 </select>
+//               </div>
+
+//               <div>
+//                 <label className="block font-bold text-gray-700 mt-6 mb-4">Visibilidad</label>
+//                 <select
+//                   className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+//                   value={visibility}
+//                   onChange={(e) => setVisibility(e.target.value)}
+//                 >
+//                   {visibilityOptions.map((option) => (
+//                     <option key={option.value} value={option.value}>{option.label}</option>
+//                   ))}
+//                 </select>
+//               </div>
+
+//               <div className="w-full flex items-center justify-center gap-2 pt-14 pb-4">
+//                 <button
+//                   type="submit"
+//                   className="w-[138px] text-[14px] font-bold bg-red-400 text-white py-2 rounded-xl hover:bg-red-500"
+//                 >
+//                   Crear Proyecto
+//                 </button>
+//               </div>
+//             </form>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// }

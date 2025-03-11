@@ -145,16 +145,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Simplificamos para usar solo backgroundType 'color' y el color hexadecimal
-    const backgroundColor = getBackgroundColor(data.background || "");
+    // Obtener la ruta de la imagen de fondo
+    const backgroundImage = data.backgroundImage || ""; // Usar la ruta de la imagen enviada desde el frontend
 
     // Crear el nuevo proyecto
     const newProject = new Project({
       name: data.name,
       description: data.description || "",
       creator: new mongoose.Types.ObjectId(session.user._id),
-      backgroundType: "color",
-      backgroundColor,
+      backgroundType: "image",
+      backgroundImage, // Guardar la ruta de la imagen
       visibility: data.visibility,
     });
 

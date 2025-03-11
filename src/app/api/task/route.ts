@@ -108,21 +108,29 @@ export async function POST(request: Request) {
       category: categoryId,
       dueDate,
       assignedTo,
+      like
     } = await request.json();
 
-    // Verificar permisos en la categoría
+    // Verificar que se envíen los campos mínimos
+    if (!title || !categoryId || !dueDate) {
+      return NextResponse.json(
+        { error: "Faltan datos requeridos" },
+        { status: 400 }
+      );
+    }
+
+    // Buscar la categoría y poblar el proyecto
     const category = await Category.findById(categoryId).populate({
       path: "project",
       select: "creator collaborators",
     });
 
     if (!category) {
-      return NextResponse.json(
-        { error: "Categoría no encontrada" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
     }
+
     const project = category.project as any;
+
     const isAllowed =
       project.creator.toString() === session.user._id ||
       project.collaborators.some(
@@ -133,24 +141,25 @@ export async function POST(request: Request) {
 
     if (!isAllowed) {
       return NextResponse.json(
-        {
-          error: "No tienes permiso para crear tareas",
-        },
+        { error: "No tienes permiso para crear tareas" },
         { status: 403 }
       );
     }
 
+    // Crear la tarea asignando project a partir de la categoría
     const newTask = new Task({
       title,
       description,
+      project: project._id,
       category: categoryId,
-      dueDate,
+      dueDate: new Date(dueDate), // Asegúrate de que dueDate venga en formato válido
+      like: like,
       assignedTo: assignedTo || null,
     });
 
     await newTask.save();
 
-    // Actualizar categoría con la nueva tarea
+    // Actualizar la categoría con la nueva tarea
     await Category.findByIdAndUpdate(categoryId, {
       $push: { tasks: newTask._id },
     });
@@ -159,13 +168,12 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating task:", error);
     return NextResponse.json(
-      {
-        error: "Error al crear la tarea",
-      },
+      { error: "Error al crear la tarea" },
       { status: 500 }
     );
   }
 }
+
 
 export async function PUT(request: Request) {
   try {

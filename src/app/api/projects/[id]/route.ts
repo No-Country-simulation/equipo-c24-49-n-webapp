@@ -30,7 +30,7 @@ export async function GET(
         select: "name tasks",
         populate: {
           path: "tasks",
-          select: "title description priority status",
+          select: "title description priority status dueDate category like",
         },
       })
       .populate({
@@ -38,8 +38,10 @@ export async function GET(
         select: "name messages",
       })
       .populate("creator", "fullname avatar");
-      console.log(project)
+      // console.log(project)
       // console.log(project?.categories[0]?.tasks)
+      console.log("project.creator:", project.creator.toString());
+
     if (!project) {
       
       return NextResponse.json(

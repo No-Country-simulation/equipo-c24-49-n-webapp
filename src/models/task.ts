@@ -10,6 +10,7 @@ export interface ITask extends Document {
   priority: "Alta" | "Media" | "Baja";
   status: "En curso" | "En pausa" | "Finalizada";
   dueDate: Date;
+  like: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -53,6 +54,10 @@ const TaskSchema = new Schema<ITask>(
     dueDate: {
       type: Date,
       required: [true, "La fecha de plazo es requerida"],
+    },
+    like: {
+      type: Boolean,
+      default: false
     },
   },
   {

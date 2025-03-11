@@ -123,8 +123,9 @@ export const authOptions: AuthOptions = {
         createdAt: token.createdAt as Date,
         updatedAt: token.updatedAt as Date,
       };
-      console.log(session);
-
+      // console.log(session);
+      console.log("session.user._id:", session);
+      
       return session;
     },
   },

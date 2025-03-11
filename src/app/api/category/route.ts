@@ -193,10 +193,10 @@ export async function PUT(request: Request) {
 
     const updatedCategory = await Category.findByIdAndUpdate(
       _id,
-      { name: data.name },
+      { $set: data },
       { new: true, runValidators: true }
     );
-
+    
     return NextResponse.json(updatedCategory);
   } catch (error) {
     console.error("Error updating category:", error);

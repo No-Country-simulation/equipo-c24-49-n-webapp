@@ -50,7 +50,6 @@ export default function RootLayout({ children }) {
           <header>
             <Navbar />
           </header>
-          <BeePatern />
           {children}
         </Providers>
       </body>

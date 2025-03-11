@@ -24,27 +24,38 @@ const Navbar = () => {
               alt="Logo"
               className="w-12 h-12 object-contain"
             />
-            <span className="text-[24px] font-bold">PANAL</span>
+            <span className="text-[24px] font-medium text-accent">PANAL</span>
           </Link>
         </div>
 
         {/* Menú de navegación */}
         <div className="gap-2 flex items-center">
-          <ul className="menu menu-horizontal gap-2 text-sm font-semibold flex-nowrap hidden md:flex">
-            <li>
-              <a href="#features">Recursos</a>
-            </li>
-            <li>
-              <a href="#pricing">Equipos</a>
-            </li>
-            <li>
-              <a href="/about">Sobre el proyecto</a>
-            </li>
-          </ul>
+          {pathname !== "/register" && (
+            <ul className=" text-accent menu menu-horizontal gap-2 text-sm font-medium flex-nowrap hidden md:flex">
+              <li className="">
+                <a className="hover:bg-gray-100 " href="#features">
+                  Recursos
+                </a>
+              </li>
+              <li>
+                <a className="hover:bg-gray-100 " href="#pricing">
+                  Equipos
+                </a>
+              </li>
+              <li>
+                <a className="hover:bg-gray-100 " href="/about">
+                  Sobre el proyecto
+                </a>
+              </li>
+            </ul>
+          )}
 
           <div className="flex flex-nowrap gap-2">
-            {pathname !== "/login" && (
-              <Link href="/login" className="btn">
+            {pathname !== "/register" && (
+              <Link
+                href="/login"
+                className="btn  hover:bg-gray-100 bg-white border-0 shadow-none font-medium text-accent"
+              >
                 Iniciar Sesión
               </Link>
             )}

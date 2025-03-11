@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader";
 
-
 const Register = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,7 +53,8 @@ const Register = () => {
       toast.dismiss(toastId);
       setLoading(false);
       if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data.message || "Error en el registro";
+        const errorMessage =
+          error.response?.data.message || "Error en el registro";
         setError(errorMessage);
         toast.error(errorMessage);
       } else {
@@ -64,41 +64,70 @@ const Register = () => {
     }
   };
 
-  if (status === "loading") return <Loader/>
+  if (status === "loading") return <Loader />;
 
   return (
-    <div className="min-h-screen flex justify-center sm:overflow-hidden overflow-visible">
+    <div className="min-h-screen flex justify-center sm:overflow-hidden overflow-visible text-accent">
       <div className="relative mt-8 md:mt-18 flex-1 grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto">
         <div className="relative flex items-center justify-center p-6">
-          <div className="w-full max-w-md">
+          <div className="w-full">
             <div className="card">
-              <div className="card-body">
-                <h1 className="card-title text-3xl text-primary mb-6">Regístrate</h1>
-                {error && <div className="bg-red-500 text-white p-2 mb-4 rounded">{error}</div>}
+              <div className="card-body text-accent">
+                <h1 className="card-title text-[32px] text-accent mb-[70px] font-normal mt-[24px]">
+                  Regístrate
+                </h1>
+                {error && (
+                  <div className="bg-red-500 text-white p-2 mb-4 rounded">
+                    {error}
+                  </div>
+                )}
                 <div className="flex flex-col gap-3">
                   <button
-                    className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
-                    onClick={() => signIn("google", { callbackUrl: "/dashboard/profile" })}
+                    className="flex justify-center items-center border py-2 gap-2 hover:bg-gray-100 hover:text-neutral font-normal text-accent border-black/15 rounded-[10px] max-w-[305px] mx-auto text-base w-full scale-100  active:scale-95 transition-all "
+                    onClick={() =>
+                      signIn("google", { callbackUrl: "/dashboard/profile" })
+                    }
                     disabled={loading}
                   >
-                    <img src="/google-icon.svg" className="w-5 h-5" alt="Google" />
+                    <img
+                      src="/google-icon.svg"
+                      className="w-5 h-5"
+                      alt="Google"
+                    />
                     Continuar con Google
                   </button>
 
                   <button
-                    className="btn btn-outline gap-2 hover:bg-secondary/20 hover:text-neutral"
-                    onClick={() => signIn("apple", { callbackUrl: "/dashboard/profile" })}
+                    className="flex justify-center items-center border py-2 gap-2 hover:bg-gray-100 hover:text-neutral font-normal text-accent border-black/15 rounded-[10px] max-w-[305px] mx-auto text-base w-full scale-100  active:scale-95 transition-all "
+                    onClick={() =>
+                      signIn("apple", { callbackUrl: "/dashboard/profile" })
+                    }
                     disabled={loading}
                   >
-                    <img src="/apple-icon.svg" className="w-5 h-5" alt="Apple" />
+                    <img
+                      src="/apple-icon.svg"
+                      className="w-5 h-5"
+                      alt="Apple"
+                    />
                     Continuar con Apple
+                  </button>
+
+                  <button
+                    className="mb-[71px] flex justify-center items-center border py-2 gap-2 hover:bg-gray-100 hover:text-neutral font-normal text-accent border-black/15 rounded-[10px] max-w-[305px] mx-auto text-base w-full scale-100  active:scale-95 transition-all "
+                    onClick={() =>
+                      signIn("apple", { callbackUrl: "/dashboard/profile" })
+                    }
+                    disabled={loading}
+                  >
+                    Continuar con ...
                   </button>
                 </div>
 
-                <div className="divider text-primary my-2"></div>
-
-                <form onSubmit={handleSubmit}>
-                  <div className="form-control">
+                <form
+                  onSubmit={handleSubmit}
+                  className="max-w-[412px] w-[412px] mx-auto"
+                >
+                  {/* <div className="form-control border-2 p-2">
                     <label className="label">
                       <span className="label-text text-primary font-semibold">Nombre Completo</span>
                     </label>
@@ -106,47 +135,58 @@ const Register = () => {
                       type="text"
                       name="fullname"
                       placeholder="Introduce tu nombre completo..."
-                      className="input input-bordered"
+                      className=""
                       required
                       disabled={loading}
                     />
-                  </div>
+                  </div> */}
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text text-primary font-semibold">Email</span>
+                  <div className="form-control border p-3 pb-2 pt-0 rounded-xl mx-auto mb-[13px]">
+                    <label className="label pl-0 pb-1">
+                      <span className="label-text text-accent text-xs font-semibold ">
+                        Email
+                      </span>
                     </label>
                     <input
                       type="email"
                       name="email"
                       placeholder="Introduce tu email..."
-                      className="input input-bordered"
+                      className="focus:outline-none"
                       required
                       disabled={loading}
                     />
                   </div>
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text text-primary font-semibold">Contraseña</span>
+                  <div className="form-control border p-3 pb-2 pt-0 rounded-xl mx-auto">
+                    <label className="label pl-0 pb-1">
+                      <span className="label-text text-accent text-xs font-semibold">
+                        Contraseña
+                      </span>
                     </label>
                     <input
                       type="password"
                       name="password"
                       placeholder="Introduce tu contraseña..."
-                      className="input input-bordered"
+                      className="focus:outline-none"
                       required
                       minLength={6}
                       disabled={loading}
                     />
                   </div>
 
-                  <button type="submit" className="btn btn-primary w-full mt-8" disabled={loading}>
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-full mt-8"
+                    disabled={loading}
+                  >
                     {loading ? "Registrando..." : "Registrarme"}
                   </button>
                 </form>
-                <p>
-                  ¿Ya tienes cuenta? <a href="/login" className="link cursor-pointer">Inicia sesión</a>
+                <p className="mx-auto">
+                  ¿Ya tienes cuenta?{" "}
+                  <a href="/login" className="link cursor-pointer">
+                    Inicia sesión
+                  </a>
                 </p>
               </div>
             </div>
@@ -171,13 +211,8 @@ const Register = () => {
             />
           </div>
         </div>
-
-        <div className="absolute flex justify-center sm:-bottom-full bottom-0 sm:inset-0 -z-10">
-          <img src="/bee-pattern.svg" alt="Patrón de abejas" />
-        </div>
       </div>
     </div>
-
   );
 };
 

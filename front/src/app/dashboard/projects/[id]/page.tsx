@@ -129,92 +129,108 @@ export default function ProjectPage() {
       </div>
 
       <div className="flex gap-6 mx-auto justify-center">
-  {project?.categories.map((category) => {
-    // Obtener tareas desde la categoría
-    const tasksForCategory = category.tasks || [];
-    console.log("testtttttt")
-    console.log(tasksForCategory)
-    return (
-      <section key={category._id} className="gap-2 mx-2 w-80 h-fit">
-        <div className="flex justify-between items-center mb-4 pr-3 pl-1">
-          <h2 className="font-normal text-lg">{category.name}</h2>
-          <button className="text-accent">
-            <MoreHorizontal size={18} />
-          </button>
-        </div>
+        {project?.categories.map((category) => {
+          // Obtener tareas desde la categoría
+          const tasksForCategory = category.tasks || [];
 
-        <div className="flex flex-col gap-5">
-          {tasksForCategory.length > 0 ? (
-            tasksForCategory.map((task) => (
-              <div
-                key={task._id}
-                className="bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-accent/5 flex flex-col gap-5 justify-between"
-              >
-                <div className="flex items-start w-full gap-2">
-                  <img src="/hexagon-icon.svg" className="w-5 h-5" />
-                  <h3 className="text-accent font-medium">{task.title}</h3>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-2">
-                    <div className="badge badge-info gap-1 text-accent">
-                      {task.priority}
-                    </div>
-                    <div className="badge badge-info gap-1 text-accent">
-                      {task.status}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-end">
-                  {task.dueDate && (
-                    <span className="text-accent text-sm">
-                      {new Date(task.dueDate).toLocaleDateString("es-ES", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
-                  )}
-                </div>
+          return (
+            <section key={category._id} className="gap-2 mx-2 w-80 h-fit">
+              <div className="flex justify-between items-center mb-4 pr-3 pl-1">
+                <h2 className="font-normal text-lg">{category.name}</h2>
+                <button className="text-accent">
+                  <MoreHorizontal size={18} />
+                </button>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No hay tareas en esta categoría.</p>
-          )}
 
-          {showAddTaskInput === category._id && (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="text-accent font-medium w-full p-1 border border-gray-300 rounded-md"
-                placeholder="Escribe el nombre de la tarea"
-                onKeyDown={(e) =>
-                  e.key === "Enter" && handleAddTask(category._id)
-                }
-              />
-            </div>
-          )}
-        </div>
+              <div className="flex flex-col gap-5">
+                {tasksForCategory.length > 0 ? (
+                  tasksForCategory.map((task) => {
+                    // Determinar el badge de prioridad
+                    let priorityBadgeClass = "badge-info"; // Por defecto
+                    if (task.priority === "Media") {
+                      priorityBadgeClass = "badge-warning";
+                    } else if (task.priority === "Alta") {
+                      priorityBadgeClass = "badge-error";
+                    }
 
-        <div className="flex gap-2 mt-5 opacity-70 justify-center cursor-pointer">
-          <button
-            onClick={() => {
-              setShowAddTaskInput(category._id);
-              setNewTaskTitle("");
-            }}
-            className="text-accent opacity-60"
-          >
-            <Plus size={20} />
-          </button>
-          <p className="text-accent">Añadir tarea</p>
-        </div>
-      </section>
-    );
-  })}
-</div>
+                    // Determinar el badge de estado
+                    let statusBadgeClass = "badge-warning"; // Por defecto (En curso o En pausa)
+                    if (task.status === "Finalizada") {
+                      statusBadgeClass = "badge-success";
+                    }
 
+                    return (
+                      <div
+                        key={task._id}
+                        className="bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-accent/5 flex flex-col gap-5 justify-between"
+                      >
+                        <div className="flex items-start w-full gap-2">
+                          <img src="/hexagon-icon.svg" className="w-5 h-5" />
+                          <h3 className="text-accent font-medium">{task.title}</h3>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-2">
+                            {/* Badge de prioridad */}
+                            <div className={`badge ${priorityBadgeClass} gap-1 text-accent`}>
+                              {task.priority}
+                            </div>
+                            {/* Badge de estado */}
+                            <div className={`badge ${statusBadgeClass} gap-1 text-accent`}>
+                              {task.status}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-end">
+                          {task.dueDate && (
+                            <span className="text-accent text-sm">
+                              {new Date(task.dueDate).toLocaleDateString("es-ES", {
+                                day: "numeric",
+                                month: "short",
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-gray-500">No hay tareas en esta categoría.</p>
+                )}
+
+                {showAddTaskInput === category._id && (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newTaskTitle}
+                      onChange={(e) => setNewTaskTitle(e.target.value)}
+                      className="text-accent font-medium w-full p-1 border border-gray-300 rounded-md"
+                      placeholder="Escribe el nombre de la tarea"
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleAddTask(category._id)
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 mt-5 opacity-70 justify-center cursor-pointer">
+                <button
+                  onClick={() => {
+                    setShowAddTaskInput(category._id);
+                    setNewTaskTitle("");
+                  }}
+                  className="text-accent opacity-60"
+                >
+                  <Plus size={20} />
+                </button>
+                <p className="text-accent">Añadir tarea</p>
+              </div>
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 }

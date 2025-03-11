@@ -1,95 +1,90 @@
-# 📌 Gestor de Tareas Colaborativo
+# 📌 PANAL TASK
 
 ## 📖 Descripción
 Este es un **MVP** de un gestor de tareas colaborativo, donde los usuarios pueden:
 - Registrarse e iniciar sesión.
 - Crear, asignar y gestionar tareas.
-- Cambiar el estado de las tareas (Pendiente, En Progreso, Completada).
+- Mover tareas entre categorías predefinidas ("En Proceso", "Hecho", "En Pausa").
 - Visualizar el progreso y las tareas asignadas.
 
 El proyecto está diseñado para **3 semanas** y cuenta con un equipo de:
-- **3 Frontend Developers** (React.js, JavaScript, Zustand/Redux).
-- **2 Backend Developers** (Node.js, Express.js, Sequelize, PostgreSQL).
-- **3 UX/UI Designers** (Figma, diseño de experiencia e interfaz).
-- **2 QA Testers** (Pruebas manuales y automatizadas con Cypress).
+- **2 Desarrolladores Full Stack** (Next.js y MongoDB).
+- **1 Desarrollador Frontend** (React.js, Tailwind CSS, DaisyUI).
+- **2 Diseñadores UX/UI** (Figma, diseño de experiencia e interfaz).
+- **1 QA Tester** (Pruebas manuales).
 
 ## 🚀 Tecnologías Utilizadas
 ### **Frontend**
-- React.js + JavaScript
-- Zustand o Redux para manejo de estado
-- CSS para estilos
+- Next.js (React)
+- Tailwind CSS + DaisyUI
+- React Hot Toast para notificaciones
 
 ### **Backend**
-- Node.js con Express.js
-- PostgreSQL con Sequelize ORM
-- Autenticación con JWT
-
-### **Testing**
-- Cypress para pruebas end-to-end
-- Jest para pruebas unitarias
+- API Routes de Next.js
+- MongoDB con Mongoose
+- Autenticación con NextAuth.js (Google OAuth y credenciales)
+- Bcryptjs para hashing de contraseñas
 
 ## 📁 Estructura del Proyecto
 ```bash
-📦 EQUIPO-C24-49-N-WEBAPP
-├── back/              # API con Node.js + Express
-├── front/             # UI con Reac.js
-├── test/              # testing con Jest
-├── ux-ui/             # Documentación y wireframes
+📦 task-manager
+├── models/            # Modelos de datos con Mongoose
+├── components/        # Componentes reutilizables
+├── utils/             # Funciones auxiliares
+├── public/            # Recursos estáticos
+├── pages/api/         # API Routes con Next.js
+├── pages/             # UI con Next.js (React)
 └── README.md          # Este archivo
 ```
 
 ## 🔧 Instalación y Configuración
 ### **1️⃣ Clonar el repositorio**
 ```sh
-git clone https://github.com/No-Country-simulation/equipo-c24-49-n-webapp.git
-cd equipo-c24-49-n-webapp
+git clone https://github.com/No-Country-simulation/equipo-c24-49-n-webapp
 ```
-### **2️⃣ Configurar el Backend**
+### **2️⃣ Configurar el entorno**
 ```sh
-cd backend
-npm install
-cp .env.example .env  # Configurar las variables de entorno
-npm run dev  # Iniciar servidor
+cp .env.example .env  # Configurar variables de entorno
 ```
-### **3️⃣ Configurar el Frontend**
+### **3️⃣ Instalar dependencias y ejecutar**
 ```sh
-cd frontend
 npm install
-npm run dev  # Iniciar el cliente
+npm run dev  # Iniciar servidor en modo desarrollo
 ```
 
-## 🔗 Endpoints Principales (Backend)
+## 🔗 Endpoints Principales (API Routes en Next.js)
 | Método  | Ruta                        | Descripción |
 |---------|-----------------------------|-------------|
-| **POST**   | `/auth/register`            | Registrar usuario |
-| **POST**   | `/auth/login`               | Iniciar sesión |
-| **GET**    | `/tasks`                    | Obtener todas las tareas |
-| **POST**   | `/tasks`                    | Crear una nueva tarea |
-| **PATCH**  | `/tasks/status/:id`         | Cambiar estado de tarea |
+| **POST**   | `/api/auth/signup`        | Registrar usuario |
+| **POST**   | `/api/auth/login`           | Iniciar sesión |
+| **GET**    | `/api/projects`             | Obtener proyectos del usuario |
+| **POST**   | `/api/projects`             | Crear un nuevo proyecto |
+| **GET**    | `/api/tasks`                | Obtener todas las tareas |
+| **POST**   | `/api/tasks`                | Crear una nueva tarea |
 
 ## 📌 Roles y Responsabilidades
-### **Frontend (3 personas)**
-- Implementar UI con React.js
-- Integrar API
-- Manejo de estado global
+### **Desarrolladores Full Stack (2 personas)**
+- Implementar API Routes en Next.js
+- Desarrollar funcionalidades en MongoDB y Mongoose
+- Integrar el frontend con el backend
 
-### **Backend (2 personas)**
-- Implementar API y base de datos
-- Seguridad y autenticación
+### **Desarrollador Frontend (1 persona)**
+- Implementar UI con Next.js y Tailwind CSS
+- Integración con API
 
-### **UX/UI (3 personas)**
+### **Diseñadores UX/UI (2 personas)**
 - Diseñar prototipos en Figma
-- Crear sistema de diseño
+- Crear sistema de diseño y experiencia de usuario
 
-### **QA (2 personas)**
-- Pruebas manuales y automatizadas
+### **QA Tester (1 persona)**
+- Pruebas manuales
 - Reporte de errores y mejoras
 
 ## 📅 Roadmap de Desarrollo (3 Semanas)
 ### **Semana 1**
 ✅ Backend: Configuración API y DB  
 ✅ UX/UI: Wireframes y validación  
-✅ Frontend: Setup de React.js y diseño inicial  
+✅ Frontend: Setup de Next.js y diseño inicial  
 
 ### **Semana 2**
 ✅ Frontend: Desarrollo de vistas  
@@ -98,19 +93,13 @@ npm run dev  # Iniciar el cliente
 
 ### **Semana 3**
 ✅ Mejoras de UI/UX  
-✅ QA: Pruebas automatizadas  
-✅ Despliegue en Vercel y Railway  
+✅ QA: Pruebas adicionales  
+✅ Despliegue en Vercel y MongoDB Atlas  
 
-## 📢 Contribuciones
-¡Cualquier contribución es bienvenida! Por favor, sigue estos pasos:
-1. **Fork** este repositorio
-2. Crea una **rama** (`feature/nueva-funcionalidad`)
-3. **Commitea** tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
-4. **Push** a tu fork (`git push origin feature/nueva-funcionalidad`)
-5. Abre un **Pull Request**
 
 ## 📜 Licencia
 Este proyecto está bajo la licencia **MIT**.
 
 ---
 Hecho con ❤️ por el equipo de desarrollo 🚀
+

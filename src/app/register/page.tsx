@@ -36,7 +36,8 @@ const Register = () => {
       const res = await signIn("credentials", {
         email: signupResponse.data.email,
         password: formData.get("password"),
-        redirect: false,
+        redirect: true,
+        
       });
 
       toast.dismiss(toastId);
@@ -85,7 +86,7 @@ const Register = () => {
                   <button
                     className="flex justify-center items-center border py-2 gap-2 hover:bg-gray-100 hover:text-neutral font-normal text-accent border-black/15 rounded-[10px] max-w-[305px] mx-auto text-base w-full scale-100  active:scale-95 transition-all "
                     onClick={() =>
-                      signIn("google", { callbackUrl: "/dashboard/profile" })
+                      signIn("google", { callbackUrl: "/dashboard" })
                     }
                     disabled={loading}
                   >
@@ -100,7 +101,7 @@ const Register = () => {
                   <button
                     className="flex justify-center items-center border py-2 gap-2 hover:bg-gray-100 hover:text-neutral font-normal text-accent border-black/15 rounded-[10px] max-w-[305px] mx-auto text-base w-full scale-100  active:scale-95 transition-all "
                     onClick={() =>
-                      signIn("apple", { callbackUrl: "/dashboard/profile" })
+                      signIn("apple", { callbackUrl: "/dashboard" })
                     }
                     disabled={loading}
                   >
@@ -115,7 +116,7 @@ const Register = () => {
                   <button
                     className="mb-[71px] flex justify-center items-center border py-2 gap-2 hover:bg-gray-100 hover:text-neutral font-normal text-accent border-black/15 rounded-[10px] max-w-[305px] mx-auto text-base w-full scale-100  active:scale-95 transition-all "
                     onClick={() =>
-                      signIn("apple", { callbackUrl: "/dashboard/profile" })
+                      signIn("apple", { callbackUrl: "/dashboard" })
                     }
                     disabled={loading}
                   >

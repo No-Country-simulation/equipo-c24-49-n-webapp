@@ -97,7 +97,6 @@ export async function POST(request: Request) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
@@ -113,7 +112,6 @@ export async function POST(request: Request) {
       like
     } = await request.json();
 
-    // Verificar que se envíen los campos mínimos
     if (!title || !categoryId || !dueDate) {
       return NextResponse.json(
         { error: "Faltan datos requeridos" },
@@ -122,16 +120,14 @@ export async function POST(request: Request) {
     }
 
     // Buscar la categoría y poblar el proyecto
-    const category = await Category.findById(categoryId).populate({
+    const fetchedCategory = await Category.findById(categoryId).populate({
       path: "project",
       select: "creator collaborators name",
     });
-
-    if (!category) {
+    if (!fetchedCategory) {
       return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
     }
-
-    const project = category.project as any;
+    const project = fetchedCategory.project as any;
 
     const isAllowed =
       project.creator.toString() === session.user._id ||
@@ -140,7 +136,6 @@ export async function POST(request: Request) {
           c.user.toString() === session.user._id &&
           ["admin", "editor"].includes(c.role)
       );
-
     if (!isAllowed) {
       return NextResponse.json(
         { error: "No tienes permiso para crear tareas" },
@@ -148,22 +143,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Crear la tarea asignando project a partir de la categoría
     const newTask = new Task({
       title,
       description,
       project: project._id,
       category: categoryId,
-      status: category.name,
+      status: status || fetchedCategory.name, // Ahora usamos fetchedCategory.name
       priority: priority,
-      dueDate: new Date(dueDate), 
+      dueDate: new Date(dueDate),
       like: like,
       assignedTo: assignedTo || null,
     });
 
     await newTask.save();
 
-    // Actualizar la categoría con la nueva tarea
     await Category.findByIdAndUpdate(categoryId, {
       $push: { tasks: newTask._id },
     });
@@ -183,15 +176,13 @@ export async function PUT(request: Request) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
-
     const { _id, ...data } = await request.json();
 
     // Obtener tarea y verificar permisos
-    const TaskModel = mongoose.model('Task');
+    const TaskModel = mongoose.model("Task");
     const task = await TaskModel.findById(_id).populate({
       path: "category",
       populate: {
@@ -199,12 +190,8 @@ export async function PUT(request: Request) {
         select: "creator collaborators",
       },
     });
-
     if (!task) {
-      return NextResponse.json(
-        { error: "Tarea no encontrada" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Tarea no encontrada" }, { status: 404 });
     }
     const project = (task.category as any).project;
     const isCreator = project.creator.toString() === session.user._id;
@@ -215,10 +202,8 @@ export async function PUT(request: Request) {
       (c: any) => c.user.toString() === session.user._id && c.role === "editor"
     );
     const isAssignedUser = task.assignedTo?.toString() === session.user._id;
-
     // Solo admin/editor pueden editar todos los campos
     const canEditAll = isCreator || isAdmin || isEditor;
-
     // Usuario asignado solo puede cambiar el estado
     if (
       !canEditAll &&
@@ -232,32 +217,60 @@ export async function PUT(request: Request) {
       );
       return NextResponse.json(updatedTask);
     }
-
     if (!canEditAll) {
       return NextResponse.json(
-        {
-          error: "No tienes permiso para editar esta tarea",
-        },
+        { error: "No tienes permiso para editar esta tarea" },
         { status: 403 }
       );
     }
 
+    // Si se está marcando como finalizada, se espera que se envíe data.category
+    // que corresponde al ID de la categoría "Finalizada"
+    if (data.status === "Finalizada" && data.category) {
+      const oldCategoryId =
+        typeof task.category === "string"
+          ? task.category
+          : task.category._id?.toString();
+      const newCategoryId = data.category.toString();
+      const oldCatObjId = new mongoose.Types.ObjectId(oldCategoryId);
+      const newCatObjId = new mongoose.Types.ObjectId(newCategoryId);
+      // Actualizamos la tarea con los nuevos datos
+      const updatedTask = await TaskModel.findByIdAndUpdate(
+        _id,
+        data,
+        { new: true, runValidators: true }
+      );
+      if (oldCategoryId !== newCategoryId) {
+        await Category.findByIdAndUpdate(oldCatObjId, {
+          $pull: { tasks: _id },
+        });
+        await Category.findByIdAndUpdate(newCatObjId, {
+          $push: { tasks: _id },
+        });
+      }
+      return NextResponse.json(updatedTask);
+    }
+
+    // Para el resto de las actualizaciones (como marcar como "En curso")
+    // Si data.category existe, forzamos la conversión a ObjectId
+    if (data.category) {
+      data.category = new mongoose.Types.ObjectId(data.category);
+    }
     const updatedTask = await TaskModel.findByIdAndUpdate(_id, data, {
       new: true,
       runValidators: true,
     });
-
     return NextResponse.json(updatedTask);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating task:", error);
     return NextResponse.json(
-      {
-        error: "Error al actualizar la tarea",
-      },
+      { error: "Error al actualizar la tarea", details: error.message },
       { status: 500 }
     );
   }
 }
+
+
 
 export async function DELETE(request: Request) {
   try {

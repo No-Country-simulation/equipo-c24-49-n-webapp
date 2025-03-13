@@ -154,24 +154,20 @@ export async function PUT(request: Request) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
+    
+    // Se espera que el body contenga el _id de la categoría en el campo _id.
+    const { _id, taskId, taskIdPull, ...data } = await request.json();
 
-    const { _id, ...data } = await request.json();
-
-    // Verificar permisos
+    // Verificar permisos: se busca la categoría y se popula el proyecto
     const category = await Category.findById(_id).populate({
       path: "project",
       select: "creator collaborators",
     });
-
     if (!category) {
-      return NextResponse.json(
-        { error: "Categoría no encontrada" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
     }
     const project = category.project as any;
     const hasPermission =
@@ -181,33 +177,47 @@ export async function PUT(request: Request) {
           c.user.toString() === session.user._id &&
           ["admin", "editor"].includes(c.role)
       );
-
     if (!hasPermission) {
       return NextResponse.json(
-        {
-          error: "No tienes permiso para editar esta categoría",
-        },
+        { error: "No tienes permiso para editar esta categoría" },
         { status: 403 }
       );
     }
 
-    const updatedCategory = await Category.findByIdAndUpdate(
-      _id,
-      { $set: data },
-      { new: true, runValidators: true }
-    );
+    let updatedCategory;
+    if (taskId) {
+      // Agregar una tarea (push)
+      updatedCategory = await Category.findByIdAndUpdate(
+        _id,
+        { $push: { tasks: taskId } },
+        { new: true }
+      );
+    } else if (taskIdPull) {
+      // Remover una tarea (pull)
+      updatedCategory = await Category.findByIdAndUpdate(
+        _id,
+        { $pull: { tasks: taskIdPull } },
+        { new: true }
+      );
+    } else {
+      // Actualización general
+      updatedCategory = await Category.findByIdAndUpdate(
+        _id,
+        { $set: data },
+        { new: true, runValidators: true }
+      );
+    }
     
     return NextResponse.json(updatedCategory);
   } catch (error) {
     console.error("Error updating category:", error);
     return NextResponse.json(
-      {
-        error: "Error al actualizar la categoría",
-      },
+      { error: "Error al actualizar la categoría" },
       { status: 500 }
     );
   }
 }
+
 
 export async function DELETE(request: Request) {
   try {

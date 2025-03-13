@@ -207,29 +207,39 @@ export default function ProjectPage() {
   };
 
   // Duplicar tarea: se toma la tarea y se envía una petición POST con los mismos datos
-  const handleDuplicateTask = async (task: Task) => {
+  async function handleDuplicateTask(task: Task) {
     try {
+      let newCategoryId = task.category;
+      // Si la tarea está marcada como finalizada, buscamos la categoría "Finalizada" en el proyecto
+      if (task.status === "Finalizada") {
+        const finalCat = project?.categories.find(cat => cat.name === "Finalizada");
+        if (finalCat) {
+          newCategoryId = finalCat._id;
+        }
+      }
       const response = await fetch("/api/task", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: task.title + " (Duplicado)",
           description: task.description,
-          category: task.category,
+          category: newCategoryId, // Usamos la categoría final si corresponde
           priority: task.priority,
           projectId: project?._id,
           dueDate: task.dueDate,
           like: task.like || false,
+          status: task.status, // Mantener el mismo status
         }),
       });
       if (!response.ok) throw new Error("Error al duplicar tarea");
       const duplicatedTask = await response.json();
+      // Actualizamos el estado local: agregamos el duplicado en la categoría correspondiente
       setProject((prev) =>
         prev
           ? {
               ...prev,
               categories: prev.categories.map((cat) =>
-                cat._id === task.category
+                cat._id === newCategoryId
                   ? { ...cat, tasks: [...cat.tasks, duplicatedTask] }
                   : cat
               ),
@@ -239,37 +249,64 @@ export default function ProjectPage() {
     } catch (err) {
       console.error("Error duplicating task:", err);
     }
-  };
+  }
+  
 
   // Marcar como finalizada: se actualiza la tarea y se cambia su estado a "Finalizada"
   // y se actualiza su categoría a la del proyecto que tenga nombre "Finalizada"
   const handleMarkAsFinished = async (task: Task) => {
     try {
-      // Buscar en el proyecto la categoría "Finalizada"
-      const finalCat = project?.categories.find(cat => cat.name === "Finalizada");
+      // Buscar la categoría "Finalizada" en el proyecto
+      const finalCat = project?.categories.find((cat) => cat.name === "Finalizada");
       if (!finalCat) {
         console.error("No se encontró la categoría 'Finalizada'");
         return;
       }
-      const response = await fetch("/api/task", {
+  
+      // 1. Actualizamos la tarea: cambiamos su status a "Finalizada"
+      const responseTask = await fetch("/api/task", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           _id: task._id,
           status: "Finalizada",
-          category: finalCat._id,
         }),
       });
-      if (!response.ok) throw new Error("Error al marcar tarea como finalizada");
-      const updatedTask = await response.json();
-      // Actualizamos el proyecto: removemos la tarea de su categoría original y la agregamos a "Finalizada"
+      if (!responseTask.ok) throw new Error("Error al actualizar tarea");
+      const updatedTask = await responseTask.json();
+  
+      // 2. Actualizamos la categoría antigua: removemos la tarea usando la API de Category
+      const responseOldCat = await fetch("/api/category", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          _id: task.category,  // Se envía el id de la categoría antigua
+          taskIdPull: task._id, // Indica que se debe remover la tarea
+        }),
+      });
+      if (!responseOldCat.ok)
+        throw new Error("Error al actualizar categoría antigua");
+  
+      // 3. Actualizamos la categoría "Finalizada": agregamos la tarea usando la API de Category
+      const responseNewCat = await fetch("/api/category", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          _id: finalCat._id, // ID de la categoría "Finalizada"
+          taskId: task._id,  // Indica que se debe agregar la tarea
+        }),
+      });
+      if (!responseNewCat.ok)
+        throw new Error("Error al actualizar categoría final");
+  
+      // 4. Actualizamos el estado local: removemos la tarea de la categoría antigua y la agregamos a la "Finalizada"
       setProject((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
           categories: prev.categories.map((cat) => {
             if (cat._id === task.category) {
-              return { ...cat, tasks: cat.tasks.filter(t => t._id !== task._id) };
+              return { ...cat, tasks: cat.tasks.filter((t) => t._id !== task._id) };
             } else if (cat._id === finalCat._id) {
               return { ...cat, tasks: [...cat.tasks, updatedTask] };
             }
@@ -281,6 +318,93 @@ export default function ProjectPage() {
       console.error("Error in handleMarkAsFinished:", err);
     }
   };
+  
+
+  const handleMarkAsInProgress = async (task: Task) => {
+    try {
+      // Buscamos la categoría "En curso" en el proyecto
+      const inProgressCat = project?.categories.find((cat) => cat.name === "En curso");
+      if (!inProgressCat) {
+        console.error("No se encontró la categoría 'En curso'");
+        return;
+      }
+      // Si la tarea ya está finalizada, la categoría actual es "Finalizada"
+      const finishedCat = project?.categories.find((cat) => cat.name === "Finalizada");
+      const oldCategoryId =
+        task.status === "Finalizada" && finishedCat
+          ? finishedCat._id.toString()
+          : typeof task.category === "string"
+          ? task.category
+          // @ts-ignore
+          : task.category._id?.toString();
+      if (!oldCategoryId) {
+        console.error("No se pudo determinar la categoría actual de la tarea");
+        return;
+      }
+      // 1. Actualizamos la tarea: cambiamos su status a "En curso" y asignamos la categoría "En curso"
+      const responseTask = await fetch("/api/task", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          _id: task._id,
+          status: "En curso",
+          category: inProgressCat._id.toString(),
+        }),
+      });
+      if (!responseTask.ok) throw new Error("Error al actualizar tarea");
+      const updatedTask = await responseTask.json();
+  
+      // 2. Remover la tarea de la categoría antigua (que puede ser "Finalizada")
+      const responseOldCat = await fetch("/api/category", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          _id: oldCategoryId, // ID de la categoría actual (si la tarea estaba finalizada, es el id de "Finalizada")
+          taskIdPull: task._id,
+        }),
+      });
+      if (!responseOldCat.ok)
+        throw new Error("Error al actualizar categoría antigua");
+  
+      // 3. Agregar la tarea a la categoría "En curso"
+      const responseNewCat = await fetch("/api/category", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          _id: inProgressCat._id.toString(), // ID de la categoría "En curso"
+          taskId: task._id,
+        }),
+      });
+      if (!responseNewCat.ok)
+        throw new Error("Error al actualizar categoría en curso");
+  
+      // 4. Actualizamos el estado local:
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          categories: prev.categories.map((cat) => {
+            if (String(cat._id) === oldCategoryId) {
+              // Remover la tarea de la categoría antigua
+              return { ...cat, tasks: cat.tasks.filter((t) => t._id !== task._id) };
+            } else if (String(cat._id) === inProgressCat._id.toString()) {
+              // Agregar la tarea a "En curso" solo si aún no existe
+              const exists = cat.tasks.some((t) => t._id === task._id);
+              return exists ? cat : { ...cat, tasks: [...cat.tasks, updatedTask] };
+            }
+            return cat;
+          }),
+        };
+      });
+    } catch (err) {
+      console.error("Error in handleMarkAsInProgress:", err);
+    }
+  };
+  
+  
+  
+  
+  
 
   // Ver detalles: abre un modal (aquí usamos un estado modalTask)
   const handleViewDetails = (task: Task) => {
@@ -580,22 +704,36 @@ export default function ProjectPage() {
               </a>
             </li>
             <li>
-              <a
-                onClick={() => {
-                  // Marcar como finalizada
-                  const cat = project?.categories.find((cat) =>
-                    cat.tasks.some((t) => t._id === contextMenuTask.taskId)
-                  );
-                  const task = cat?.tasks.find((t) => t._id === contextMenuTask.taskId);
-                  if (task) {
-                    handleMarkAsFinished(task);
-                  }
-                  setContextMenuTask(null);
-                }}
-              >
-                Marcar como finalizada
-              </a>
-            </li>
+  <a
+    onClick={() => {
+      const cat = project?.categories.find((cat) =>
+        cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
+      );
+      const task = cat?.tasks.find((t) => t._id === contextMenuTask!.taskId);
+      if (task) {
+        if (task.status === "Finalizada") {
+          // Si ya está finalizada, se cambia a en curso
+          handleMarkAsInProgress(task);
+        } else {
+          // Sino, se marca como finalizada
+          handleMarkAsFinished(task);
+        }
+      }
+      setContextMenuTask(null);
+    }}
+  >
+    {(() => {
+      const cat = project?.categories.find((cat) =>
+        cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
+      );
+      const task = cat?.tasks.find((t) => t._id === contextMenuTask!.taskId);
+      return task?.status === "Finalizada"
+        ? "Marcar como en curso"
+        : "Marcar como finalizada";
+    })()}
+  </a>
+</li>
+
             <li>
               <a
                 onClick={() => {

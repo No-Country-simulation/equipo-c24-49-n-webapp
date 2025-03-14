@@ -233,7 +233,7 @@ export default function Proyectos() {
                     }
                     e.stopPropagation();
                   }}
-                  className="text-base input font-medium text-center text-accent bg-transparent  focus:outline-none"
+                  className="text-base input font-medium text-center text-accent bg-transparent border-b border-gray-300 focus:outline-none"
                 />
               </div>
             ) : (

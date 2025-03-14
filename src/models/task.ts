@@ -53,7 +53,6 @@ const TaskSchema = new Schema<ITask>(
     },
     dueDate: {
       type: Date,
-      required: [true, "La fecha de plazo es requerida"],
     },
     like: {
       type: Boolean,

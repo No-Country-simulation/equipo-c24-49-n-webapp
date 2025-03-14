@@ -63,7 +63,7 @@ const ProjectSchema = new Schema<IProject, IProjectModel>(
     backgroundType: {
       type: String,
       enum: ["color", "gradient", "image"],
-      default: "color",
+      default: "image",
     },
     backgroundColor: {
       type: String,

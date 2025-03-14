@@ -218,14 +218,13 @@ export async function PUT(request: Request) {
 
     const updateData = {
       ...data,
-      backgroundType: "color",
+      backgroundType: "image",
       backgroundColor,
     };
 
     // Eliminamos los campos que ya no utilizamos
     delete updateData.backgroundGradient;
-    delete updateData.backgroundImage;
-    delete updateData.background;
+
 
     const updatedProject = await Project.findByIdAndUpdate(_id, updateData, {
       new: true,

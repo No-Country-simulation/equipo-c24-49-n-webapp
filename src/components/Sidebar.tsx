@@ -88,8 +88,8 @@ const Sidebar = () => {
       }`}
     >
       <ul 
-        className={`flex flex-col flex-grow gap-[40px] font-normal text-base relative transition-all duration-300 ${
-          isExpanded ? "pl-[51px]" : "pl-8"}`
+        className={`flex flex-col flex-grow gap-[30px] font-normal text-base relative transition-all duration-300 ${
+          isExpanded ? "pl-[44px]" : "pl-6"}`
         }
       >
         {/* Logo / Botón para expandir */}
@@ -118,13 +118,13 @@ const isActive = pathname === href || (href !== "/dashboard" && pathname.startsW
           return (
             <li
               key={name}
-              className={`relative  flex flex-col ${
-                bottom ? "mt-auto mb-10 " : ""
+              className={`relative   flex flex-col justify-center  ${
+                bottom ? "mt-auto mb-9 " : ""
               }`}
             >
             {isActive && (
               <div 
-                className="absolute -right-0 top-3 -translate-y-1/2 w-[229px] h-[133px] overflow-hidden"
+                className="absolute -right-0 top-3 -translate-y-[42%] w-[229px] h-[133px] overflow-hidden"
               >
                 {/* Versión expandida */}
                 <svg
@@ -175,10 +175,10 @@ const isActive = pathname === href || (href !== "/dashboard" && pathname.startsW
             )}
               <Link
                 href={href}
-                className={`flex items-center gap-2 mb-2 py-0 transition-all relative ${
+                className={`flex items-center gap-2 mb-1 py-3 px-3 transition-all relative ${
                   isActive
                     ? "  "
-                    : " w-32 hover:bg-opacity-50 hover:bg-white hover:rounded-full"
+                    : " w-fit hover:bg-opacity-50 hover:bg-white  hover:rounded-full "
                 }`}
               >
                 <Image

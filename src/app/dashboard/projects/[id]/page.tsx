@@ -13,6 +13,7 @@ import {
   Flag,
   FlagTriangleRight,
   Calendar,
+  UserRoundPlus,
 } from "lucide-react";
 import Loader from "@/components/Loader";
 
@@ -517,7 +518,7 @@ export default function ProjectPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-medium">{project?.name}</h1>
         <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-          <UserPlus className="text-red-400" size={18} />
+          <UserRoundPlus className="text-red-400" size={18} />
           <span className="text-sm">Añadir miembro</span>
         </button>
       </div>

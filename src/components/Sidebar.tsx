@@ -110,7 +110,10 @@ const Sidebar = () => {
 
         {/* Menú */}
         {menuItems.map(({ name, href, icon, bottom }) => {
-          const isActive = pathname === href;
+const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`));
+
+
+
 
           return (
             <li

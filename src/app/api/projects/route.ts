@@ -12,16 +12,16 @@ async function createDefaultCategories(
 ): Promise<Types.ObjectId[]> {
   const defaultCategories = [
     {
-      name: "Recientes",
-      project: projectId,
-      creator: creatorId,
-      description: "Tareas recientes",
-    },
-    {
       name: "En curso",
       project: projectId,
       creator: creatorId,
       description: "Tareas en desarrollo activo",
+    },
+    {
+      name: "En pausa",
+      project: projectId,
+      creator: creatorId,
+      description: "Tareas en pausa",
     },
     {
       name: "Finalizada",

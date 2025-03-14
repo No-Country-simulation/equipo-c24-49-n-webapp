@@ -46,7 +46,7 @@ export default function ProjectPage() {
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [showAddTaskInput, setShowAddTaskInput] = useState<string | null>(null);
-  
+
   // Refs
   const dateInputRef = useRef<HTMLInputElement>(null);
   const editCardRef = useRef<HTMLDivElement>(null);
@@ -60,7 +60,7 @@ export default function ProjectPage() {
   >("Baja");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
   const [newTaskLike, setNewTaskLike] = useState(false);
-  
+
   // Estados para edición
   const [editDueDate, setEditDueDate] = useState("");
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -97,14 +97,14 @@ export default function ProjectPage() {
     }, [ref, handler]);
   };
 
-    // Función para formatear la fecha correctamente
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString + "T00:00:00"); // Asegura la zona horaria local
-      return date.toLocaleDateString("es-ES", {
-        day: "numeric",
-        month: "short",
-      });
-    };
+  // Función para formatear la fecha correctamente
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString + "T00:00:00"); // Asegura la zona horaria local
+    return date.toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short",
+    });
+  };
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -124,15 +124,15 @@ export default function ProjectPage() {
 
   const handleAddTask = async (categoryId: string) => {
     if (!newTaskTitle.trim()) return;
-  
+
     // Si el usuario no seleccionó fecha, se usa la actual en formato 'YYYY-MM-DD'
     const today = new Date();
     const formattedToday = today.toLocaleDateString("fr-CA"); // 'YYYY-MM-DD' en hora local (sin UTC)
-  
+
     const dueDateToUse = newTaskDueDate.trim()
       ? newTaskDueDate // Si el usuario seleccionó fecha, se usa directamente
       : formattedToday; // Si no, usamos la fecha de hoy correctamente formateada
-  
+
     try {
       const response = await fetch("/api/task", {
         method: "POST",
@@ -147,10 +147,10 @@ export default function ProjectPage() {
           like: newTaskLike,
         }),
       });
-  
+
       if (!response.ok) throw new Error("Error al crear tarea");
       const newTaskData = await response.json();
-  
+
       setProject((prev) =>
         prev
           ? {
@@ -163,7 +163,7 @@ export default function ProjectPage() {
             }
           : null
       );
-  
+
       // Limpiar formulario
       setNewTaskTitle("");
       setNewTaskDescription("");
@@ -176,7 +176,6 @@ export default function ProjectPage() {
       setError("Error al crear la tarea");
     }
   };
-  
 
   // Modifica la función handleUpdateTask
   const handleUpdateTask = async (taskId: string) => {
@@ -277,8 +276,10 @@ export default function ProjectPage() {
           newCategoryId = finalCat._id;
         }
       }
-      console.log(task)
-      const formattedDueDate = new Date(task.dueDate).toISOString().split("T")[0];
+      console.log(task);
+      const formattedDueDate = new Date(task.dueDate)
+        .toISOString()
+        .split("T")[0];
 
       const response = await fetch("/api/task", {
         method: "POST",
@@ -542,97 +543,117 @@ export default function ProjectPage() {
                     // Si la tarea está en modo edición (por click en el lápiz), mostramos el área de edición
                     if (editingTaskId === task._id) {
                       return (
-                        <div key={task._id}
-                        ref={editCardRef}
-                        className="relative bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-dotted border-gray-200 flex flex-col gap-5 justify-between"
-                        // Se puede agregar onBlur en el contenedor si se desea detectar click fuera de toda la card
-                        onBlur={(e) => {
-                          // Se comprueba que el focus no se mueva dentro de la tarjeta
-                          if (!editCardRef.current?.contains(e.relatedTarget as Node)) {
-                            handleUpdateTask(task._id);
-                          }
-                        }}
-                        tabIndex={0} // Permite que el div reciba focus para detectar blur
-                      >
-                        {/* Primera línea: Título */}
-                        <div className="flex items-center gap-2">
-                          <img src="/hexagon-icon.svg" className="w-5 h-5" />
-                          <input
-                            type="text"
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleUpdateTask(task._id);
-                            }}
-                            className="text-accent font-medium flex-1 focus:outline-none"
-                            placeholder="Título de la tarea"
-                          />
-                        </div>
-                    
-                        {/* Segunda línea: Dropdown para prioridad y selector de fecha */}
-                        <div className="flex justify-between items-center">
-                          {/* Dropdown de prioridad similar al de agregar tarea */}
-                          <div className="dropdown">
-                            <button tabIndex={0} className="badge badge-lg text-accent">
-                              {editPriority}
-                            </button>
-                            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
-                              <p className="flex items-center px-3 text-accent font-normal">
-                                <FlagTriangleRight size={20} /> Prioridad
-                              </p>
-                              <div className="divider mt-0"></div>
-                              <div className="flex flex-col gap-3 pb-2 pl-1">
-                                <li className="bg-transparent hover:bg-transparent active:bg-transparent">
-                                  <a
-                                    className="badge badge-error cursor-pointer p-0 px-2 !bg-error hover:!bg-error/90 active:!bg-error focus:!bg-error !text-accent"
-                                    onClick={() => setEditPriority("Alta")}
-                                  >
-                                    Alta
-                                  </a>
-                                </li>
-                                <li className="bg-transparent hover:bg-transparent active:bg-transparent">
-                                  <a
-                                    className="badge badge-warning cursor-pointer p-0 px-2 !bg-warning hover:!bg-warning/90 active:!bg-warning focus:!bg-warning !text-accent"
-                                    onClick={() => setEditPriority("Media")}
-                                  >
-                                    Media
-                                  </a>
-                                </li>
-                                <li className="bg-transparent hover:bg-transparent active:bg-transparent">
-                                  <a
-                                    className="badge badge-info cursor-pointer p-0 px-2 !bg-info hover:!bg-info/90 active:!bg-info focus:!bg-info !text-accent"
-                                    onClick={() => setEditPriority("Baja")}
-                                  >
-                                    Baja
-                                  </a>
-                                </li>
-                              </div>
-                            </ul>
-                          </div>
-                          {/* Selector de fecha: se muestra la fecha formateada o el icono si no se ha seleccionado */}
+                        <div
+                          key={task._id}
+                          ref={editCardRef}
+                          className="relative bg-white min-w-80 min-h-36 p-4 rounded-xl shadow-md border-2 border-dotted border-gray-200 flex flex-col gap-5 justify-between"
+                          // Se puede agregar onBlur en el contenedor si se desea detectar click fuera de toda la card
+                          onBlur={(e) => {
+                            // Se comprueba que el focus no se mueva dentro de la tarjeta
+                            if (
+                              !editCardRef.current?.contains(
+                                e.relatedTarget as Node
+                              )
+                            ) {
+                              handleUpdateTask(task._id);
+                            }
+                          }}
+                          tabIndex={0} // Permite que el div reciba focus para detectar blur
+                        >
+                          {/* Primera línea: Título */}
                           <div className="flex items-center gap-2">
-                            {editDueDate ? (
-                              <span
-                                className="text-accent cursor-pointer hover:text-slate-700"
-                                onClick={() => dateInputRef.current?.showPicker()}
-                              >
-                                {formatDate(editDueDate)}
-                              </span>
-                            ) : (
-                              <button onClick={() => dateInputRef.current?.showPicker()} className="hover:text-slate-700">
-                                <Calendar />
-                              </button>
-                            )}
+                            <img src="/hexagon-icon.svg" className="w-5 h-5" />
                             <input
-                              type="date"
-                              ref={dateInputRef}
-                              value={editDueDate}
-                              onChange={(e) => setEditDueDate(e.target.value)}
-                              className="absolute opacity-0 w-full h-full cursor-pointer"
+                              type="text"
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter")
+                                  handleUpdateTask(task._id);
+                              }}
+                              className="text-accent font-medium flex-1 focus:outline-none"
+                              placeholder="Título de la tarea"
                             />
                           </div>
+
+                          {/* Segunda línea: Dropdown para prioridad y selector de fecha */}
+                          <div className="flex justify-between">
+                            {/* Dropdown de prioridad similar al de agregar tarea */}
+                            <div className="dropdown z-50">
+                              <button
+                                tabIndex={0}
+                                className="badge badge-lg text-accent"
+                              >
+                                {editPriority}
+                              </button>
+                              <ul
+                                tabIndex={0}
+                                className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+                              >
+                                <p className="flex items-center px-3 text-accent font-normal">
+                                  <FlagTriangleRight size={20} /> Prioridad
+                                </p>
+                                <div className="divider mt-0"></div>
+                                <div className="flex flex-col gap-3 pb-2 pl-1">
+                                  <li className="bg-transparent hover:bg-transparent active:bg-transparent">
+                                    <a
+                                      className="badge badge-error cursor-pointer p-0 px-2 !bg-error hover:!bg-error/90 active:!bg-error focus:!bg-error !text-accent"
+                                      onClick={() => setEditPriority("Alta")}
+                                    >
+                                      Alta
+                                    </a>
+                                  </li>
+                                  <li className="bg-transparent hover:bg-transparent active:bg-transparent">
+                                    <a
+                                      className="badge badge-warning cursor-pointer p-0 px-2 !bg-warning hover:!bg-warning/90 active:!bg-warning focus:!bg-warning !text-accent"
+                                      onClick={() => setEditPriority("Media")}
+                                    >
+                                      Media
+                                    </a>
+                                  </li>
+                                  <li className="bg-transparent hover:bg-transparent active:bg-transparent">
+                                    <a
+                                      className="badge badge-info cursor-pointer p-0 px-2 !bg-info hover:!bg-info/90 active:!bg-info focus:!bg-info !text-accent"
+                                      onClick={() => setEditPriority("Baja")}
+                                    >
+                                      Baja
+                                    </a>
+                                  </li>
+                                </div>
+                              </ul>
+                            </div>
+                            {/* Selector de fecha: se muestra la fecha formateada o el icono si no se ha seleccionado */}
+                            <div className="flex justify-between">
+                              {editDueDate ? (
+                                <span
+                                  className="text-accent cursor-pointer hover:text-slate-700"
+                                  onClick={() =>
+                                    dateInputRef.current?.showPicker()
+                                  }
+                                >
+                                  {formatDate(editDueDate)}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    dateInputRef.current?.showPicker()
+                                  }
+                                  className="hover:text-slate-700"
+                                >
+                                  <Calendar />
+                                </button>
+                              )}
+
+                              <input
+                                type="date"
+                                ref={dateInputRef}
+                                value={editDueDate}
+                                onChange={(e) => setEditDueDate(e.target.value)}
+                                className=" opacity-0 cursor-pointer"
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
                       );
                     }
                     // Modo visual (card de tarea)
@@ -805,7 +826,7 @@ export default function ProjectPage() {
                           className="text-accent cursor-pointer hover:text-slate-700"
                           onClick={() => dateInputRef.current?.showPicker()}
                         >
-                        {formatDate(newTaskDueDate)}
+                          {formatDate(newTaskDueDate)}
                         </span>
                       ) : (
                         <button
@@ -926,127 +947,126 @@ export default function ProjectPage() {
             </li>
 
             <li>
-  <a
-    onClick={() => {
-      const cat = project?.categories.find((cat) =>
-        cat.tasks.some((t) => t._id === contextMenuTask.taskId)
-      );
-      const task = cat?.tasks.find((t) => t._id === contextMenuTask.taskId);
-      if (task) {
-        setModalTask(task);
-      }
-      setContextMenuTask(null);
-    }}
-  >
-    Ver detalles
-  </a>
-</li>
-<li>
-  <a
-    onClick={() => {
-      const cat = project?.categories.find((cat) =>
-        cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
-      );
-      const task = cat?.tasks.find((t) => t._id === contextMenuTask!.taskId);
-      if (task) {
-        setTaskToDelete(task);
-      }
-      setContextMenuTask(null);
-    }}
-  >
-    Eliminar <Trash2 size={16} className="ml-1" />
-  </a>
-</li>
-
+              <a
+                onClick={() => {
+                  const cat = project?.categories.find((cat) =>
+                    cat.tasks.some((t) => t._id === contextMenuTask.taskId)
+                  );
+                  const task = cat?.tasks.find(
+                    (t) => t._id === contextMenuTask.taskId
+                  );
+                  if (task) {
+                    setModalTask(task);
+                  }
+                  setContextMenuTask(null);
+                }}
+              >
+                Ver detalles
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => {
+                  const cat = project?.categories.find((cat) =>
+                    cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
+                  );
+                  const task = cat?.tasks.find(
+                    (t) => t._id === contextMenuTask!.taskId
+                  );
+                  if (task) {
+                    setTaskToDelete(task);
+                  }
+                  setContextMenuTask(null);
+                }}
+              >
+                Eliminar <Trash2 size={16} className="ml-1" />
+              </a>
+            </li>
           </ul>
         </div>
       )}
 
-{modalTask && (
-  <dialog
-    open
-    className="modal bg-black/30 backdrop-blur-sm"
-    onClick={(e) => {
-      // Si se hace click en el backdrop (no en el contenido), se cierra el modal
-      if (e.target === e.currentTarget) {
-        setModalTask(null);
-      }
-    }}
-  >
-    <div className="modal-box relative">
-      <button
-        onClick={() => setModalTask(null)}
-        className="btn btn-ghost absolute top-2 right-2"
-      >
-        X
-      </button>
-      <h2 className="text-2xl font-bold mb-4">Detalles de la tarea</h2>
-      <p>
-        <strong>Título:</strong> {modalTask.title}
-      </p>
-      <p>
-        <strong>Descripción:</strong> {modalTask.description}
-      </p>
-      <p>
-        <strong>Prioridad:</strong> {modalTask.priority}
-      </p>
-      <p>
-        <strong>Estado:</strong> {modalTask.status}
-      </p>
-      <p>
-        <strong>Fecha de vencimiento:</strong>{" "}
-        {new Date(modalTask.dueDate).toLocaleDateString("es-ES", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        })}
-      </p>
-      <div className="modal-action">
-        <button onClick={() => setModalTask(null)} className="btn">
-          Cerrar
-        </button>
-      </div>
-    </div>
-  </dialog>
-)}
-
-{taskToDelete && (
-  <dialog
-    open
-    className="modal bg-black/30 backdrop-blur-sm"
-    onClick={(e) => {
-      if (e.target === e.currentTarget) {
-        setTaskToDelete(null);
-      }
-    }}
-  >
-    <div className="modal-box relative">
-      <h3 className="font-bold text-lg">¿Estás seguro?</h3>
-      <p className="py-4">
-        La tarea <span className="text-accent">{taskToDelete.title}</span> se
-        eliminará permanentemente.
-      </p>
-      <div className="modal-action">
-        <button
-          className="btn"
-          onClick={() => setTaskToDelete(null)}
-        >
-          Cancelar
-        </button>
-        <button
-          className="btn btn-error"
-          onClick={async () => {
-            await handleDeleteTask(taskToDelete._id);
-            setTaskToDelete(null);
+      {modalTask && (
+        <dialog
+          open
+          className="modal bg-black/30 backdrop-blur-sm"
+          onClick={(e) => {
+            // Si se hace click en el backdrop (no en el contenido), se cierra el modal
+            if (e.target === e.currentTarget) {
+              setModalTask(null);
+            }
           }}
         >
-          Eliminar
-        </button>
-      </div>
-    </div>
-  </dialog>
-)}
+          <div className="modal-box relative">
+            <button
+              onClick={() => setModalTask(null)}
+              className="btn btn-ghost absolute top-2 right-2"
+            >
+              X
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Detalles de la tarea</h2>
+            <p>
+              <strong>Título:</strong> {modalTask.title}
+            </p>
+            <p>
+              <strong>Descripción:</strong> {modalTask.description}
+            </p>
+            <p>
+              <strong>Prioridad:</strong> {modalTask.priority}
+            </p>
+            <p>
+              <strong>Estado:</strong> {modalTask.status}
+            </p>
+            <p>
+              <strong>Fecha de vencimiento:</strong>{" "}
+              {new Date(modalTask.dueDate).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
+            <div className="modal-action">
+              <button onClick={() => setModalTask(null)} className="btn">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
 
+      {taskToDelete && (
+        <dialog
+          open
+          className="modal bg-black/30 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setTaskToDelete(null);
+            }
+          }}
+        >
+          <div className="modal-box relative">
+            <h3 className="font-bold text-lg">¿Estás seguro?</h3>
+            <p className="py-4">
+              La tarea <span className="text-accent">{taskToDelete.title}</span>{" "}
+              se eliminará permanentemente.
+            </p>
+            <div className="modal-action">
+              <button className="btn" onClick={() => setTaskToDelete(null)}>
+                Cancelar
+              </button>
+              <button
+                className="btn btn-error"
+                onClick={async () => {
+                  await handleDeleteTask(taskToDelete._id);
+                  setTaskToDelete(null);
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
     </div>
   );
 }

@@ -150,13 +150,13 @@ export async function POST(request: Request) {
       category: categoryId,
       status: status || fetchedCategory.name, // Ahora usamos fetchedCategory.name
       priority: priority,
-      dueDate: new Date(dueDate),
+      dueDate: new Date(dueDate + "T00:00:00"),
       like: like,
       assignedTo: assignedTo || null,
     });
 
     await newTask.save();
-
+    console.log(newTask)
     await Category.findByIdAndUpdate(categoryId, {
       $push: { tasks: newTask._id },
     });

@@ -9,6 +9,10 @@ import {
   Heart,
   Edit2,
   Trash2,
+  FlagIcon,
+  Flag,
+  FlagTriangleRight,
+  Calendar,
 } from "lucide-react";
 import Loader from "@/components/Loader";
 
@@ -37,29 +41,68 @@ interface Project {
 }
 
 export default function ProjectPage() {
-  const dateInputRef = useRef<HTMLInputElement>(null);
   const { id } = useParams();
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [showAddTaskInput, setShowAddTaskInput] = useState<string | null>(null);
-  const [newTaskLike, setNewTaskLike] = useState(false);
+  
+  // Refs
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const editCardRef = useRef<HTMLDivElement>(null);
+  const addCardRef = useRef<HTMLDivElement>(null);
+
   // Estados para el formulario de nueva tarea
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newTaskPriority, setNewTaskPriority] = useState<"Alta" | "Media" | "Baja">("Baja");
+  const [newTaskPriority, setNewTaskPriority] = useState<
+    "Alta" | "Media" | "Baja"
+  >("Baja");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
+  const [newTaskLike, setNewTaskLike] = useState(false);
+  
+  // Estados para edición
+  const [editDueDate, setEditDueDate] = useState("");
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editPriority, setEditPriority] = useState<"Alta" | "Media" | "Baja">(
+    "Baja"
+  );
+  //
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Estados para edición
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editPriority, setEditPriority] = useState<"Alta" | "Media" | "Baja">("Baja");
-
   // Estado para menú contextual (click derecho)
-  const [contextMenuTask, setContextMenuTask] = useState<{ taskId: string; x: number; y: number } | null>(null);
+  const [contextMenuTask, setContextMenuTask] = useState<{
+    taskId: string;
+    x: number;
+    y: number;
+  } | null>(null);
   // Estado para modal de detalles
   const [modalTask, setModalTask] = useState<Task | null>(null);
+
+  // 3. Hook para detectar clicks fuera
+  const useOnClickOutside = (
+    ref: React.RefObject<HTMLElement>,
+    handler: (e: Event) => void
+  ) => {
+    useEffect(() => {
+      const listener = (event: Event) => {
+        if (!ref.current || ref.current.contains(event.target as Node)) return;
+        handler(event);
+      };
+      document.addEventListener("mousedown", listener);
+      return () => document.removeEventListener("mousedown", listener);
+    }, [ref, handler]);
+  };
+
+    // Función para formatear la fecha correctamente
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString + "T00:00:00"); // Asegura la zona horaria local
+      return date.toLocaleDateString("es-ES", {
+        day: "numeric",
+        month: "short",
+      });
+    };
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -79,8 +122,15 @@ export default function ProjectPage() {
 
   const handleAddTask = async (categoryId: string) => {
     if (!newTaskTitle.trim()) return;
-    // Si no se ingresa fecha, se usa la de hoy
-    const dueDateToUse = newTaskDueDate.trim() ? newTaskDueDate : new Date().toISOString();
+  
+    // Si el usuario no seleccionó fecha, se usa la actual en formato 'YYYY-MM-DD'
+    const today = new Date();
+    const formattedToday = today.toLocaleDateString("fr-CA"); // 'YYYY-MM-DD' en hora local (sin UTC)
+  
+    const dueDateToUse = newTaskDueDate.trim()
+      ? newTaskDueDate // Si el usuario seleccionó fecha, se usa directamente
+      : formattedToday; // Si no, usamos la fecha de hoy correctamente formateada
+  
     try {
       const response = await fetch("/api/task", {
         method: "POST",
@@ -91,12 +141,14 @@ export default function ProjectPage() {
           category: categoryId,
           priority: newTaskPriority,
           projectId: project?._id,
-          dueDate: dueDateToUse,
+          dueDate: dueDateToUse, // Se envía en formato 'YYYY-MM-DD'
           like: newTaskLike,
         }),
       });
+  
       if (!response.ok) throw new Error("Error al crear tarea");
       const newTaskData = await response.json();
+  
       setProject((prev) =>
         prev
           ? {
@@ -109,6 +161,7 @@ export default function ProjectPage() {
             }
           : null
       );
+  
       // Limpiar formulario
       setNewTaskTitle("");
       setNewTaskDescription("");
@@ -121,7 +174,9 @@ export default function ProjectPage() {
       setError("Error al crear la tarea");
     }
   };
+  
 
+  // Modifica la función handleUpdateTask
   const handleUpdateTask = async (taskId: string) => {
     if (!editTitle.trim()) return;
     try {
@@ -132,6 +187,7 @@ export default function ProjectPage() {
           _id: taskId,
           title: editTitle,
           priority: editPriority,
+          dueDate: editDueDate, // 👈 Añadir fecha
         }),
       });
       if (!response.ok) throw new Error("Error al actualizar tarea");
@@ -143,7 +199,7 @@ export default function ProjectPage() {
               categories: prev.categories.map((cat) => ({
                 ...cat,
                 tasks: cat.tasks.map((task) =>
-                  task._id === taskId ? updatedTask : task
+                  task._id === taskId ? { ...task, ...updatedTask } : task
                 ),
               })),
             }
@@ -212,7 +268,9 @@ export default function ProjectPage() {
       let newCategoryId = task.category;
       // Si la tarea está marcada como finalizada, buscamos la categoría "Finalizada" en el proyecto
       if (task.status === "Finalizada") {
-        const finalCat = project?.categories.find(cat => cat.name === "Finalizada");
+        const finalCat = project?.categories.find(
+          (cat) => cat.name === "Finalizada"
+        );
         if (finalCat) {
           newCategoryId = finalCat._id;
         }
@@ -250,19 +308,20 @@ export default function ProjectPage() {
       console.error("Error duplicating task:", err);
     }
   }
-  
 
   // Marcar como finalizada: se actualiza la tarea y se cambia su estado a "Finalizada"
   // y se actualiza su categoría a la del proyecto que tenga nombre "Finalizada"
   const handleMarkAsFinished = async (task: Task) => {
     try {
       // Buscar la categoría "Finalizada" en el proyecto
-      const finalCat = project?.categories.find((cat) => cat.name === "Finalizada");
+      const finalCat = project?.categories.find(
+        (cat) => cat.name === "Finalizada"
+      );
       if (!finalCat) {
         console.error("No se encontró la categoría 'Finalizada'");
         return;
       }
-  
+
       // 1. Actualizamos la tarea: cambiamos su status a "Finalizada"
       const responseTask = await fetch("/api/task", {
         method: "PUT",
@@ -274,31 +333,31 @@ export default function ProjectPage() {
       });
       if (!responseTask.ok) throw new Error("Error al actualizar tarea");
       const updatedTask = await responseTask.json();
-  
+
       // 2. Actualizamos la categoría antigua: removemos la tarea usando la API de Category
       const responseOldCat = await fetch("/api/category", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          _id: task.category,  // Se envía el id de la categoría antigua
+          _id: task.category, // Se envía el id de la categoría antigua
           taskIdPull: task._id, // Indica que se debe remover la tarea
         }),
       });
       if (!responseOldCat.ok)
         throw new Error("Error al actualizar categoría antigua");
-  
+
       // 3. Actualizamos la categoría "Finalizada": agregamos la tarea usando la API de Category
       const responseNewCat = await fetch("/api/category", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           _id: finalCat._id, // ID de la categoría "Finalizada"
-          taskId: task._id,  // Indica que se debe agregar la tarea
+          taskId: task._id, // Indica que se debe agregar la tarea
         }),
       });
       if (!responseNewCat.ok)
         throw new Error("Error al actualizar categoría final");
-  
+
       // 4. Actualizamos el estado local: removemos la tarea de la categoría antigua y la agregamos a la "Finalizada"
       setProject((prev) => {
         if (!prev) return prev;
@@ -306,7 +365,10 @@ export default function ProjectPage() {
           ...prev,
           categories: prev.categories.map((cat) => {
             if (cat._id === task.category) {
-              return { ...cat, tasks: cat.tasks.filter((t) => t._id !== task._id) };
+              return {
+                ...cat,
+                tasks: cat.tasks.filter((t) => t._id !== task._id),
+              };
             } else if (cat._id === finalCat._id) {
               return { ...cat, tasks: [...cat.tasks, updatedTask] };
             }
@@ -318,25 +380,28 @@ export default function ProjectPage() {
       console.error("Error in handleMarkAsFinished:", err);
     }
   };
-  
 
   const handleMarkAsInProgress = async (task: Task) => {
     try {
       // Buscamos la categoría "En curso" en el proyecto
-      const inProgressCat = project?.categories.find((cat) => cat.name === "En curso");
+      const inProgressCat = project?.categories.find(
+        (cat) => cat.name === "En curso"
+      );
       if (!inProgressCat) {
         console.error("No se encontró la categoría 'En curso'");
         return;
       }
       // Si la tarea ya está finalizada, la categoría actual es "Finalizada"
-      const finishedCat = project?.categories.find((cat) => cat.name === "Finalizada");
+      const finishedCat = project?.categories.find(
+        (cat) => cat.name === "Finalizada"
+      );
       const oldCategoryId =
         task.status === "Finalizada" && finishedCat
           ? finishedCat._id.toString()
           : typeof task.category === "string"
           ? task.category
-          // @ts-ignore
-          : task.category._id?.toString();
+          : // @ts-ignore
+            task.category._id?.toString();
       if (!oldCategoryId) {
         console.error("No se pudo determinar la categoría actual de la tarea");
         return;
@@ -353,7 +418,7 @@ export default function ProjectPage() {
       });
       if (!responseTask.ok) throw new Error("Error al actualizar tarea");
       const updatedTask = await responseTask.json();
-  
+
       // 2. Remover la tarea de la categoría antigua (que puede ser "Finalizada")
       const responseOldCat = await fetch("/api/category", {
         method: "PUT",
@@ -365,7 +430,7 @@ export default function ProjectPage() {
       });
       if (!responseOldCat.ok)
         throw new Error("Error al actualizar categoría antigua");
-  
+
       // 3. Agregar la tarea a la categoría "En curso"
       const responseNewCat = await fetch("/api/category", {
         method: "PUT",
@@ -377,7 +442,7 @@ export default function ProjectPage() {
       });
       if (!responseNewCat.ok)
         throw new Error("Error al actualizar categoría en curso");
-  
+
       // 4. Actualizamos el estado local:
       setProject((prev) => {
         if (!prev) return prev;
@@ -386,11 +451,16 @@ export default function ProjectPage() {
           categories: prev.categories.map((cat) => {
             if (String(cat._id) === oldCategoryId) {
               // Remover la tarea de la categoría antigua
-              return { ...cat, tasks: cat.tasks.filter((t) => t._id !== task._id) };
+              return {
+                ...cat,
+                tasks: cat.tasks.filter((t) => t._id !== task._id),
+              };
             } else if (String(cat._id) === inProgressCat._id.toString()) {
               // Agregar la tarea a "En curso" solo si aún no existe
               const exists = cat.tasks.some((t) => t._id === task._id);
-              return exists ? cat : { ...cat, tasks: [...cat.tasks, updatedTask] };
+              return exists
+                ? cat
+                : { ...cat, tasks: [...cat.tasks, updatedTask] };
             }
             return cat;
           }),
@@ -400,11 +470,6 @@ export default function ProjectPage() {
       console.error("Error in handleMarkAsInProgress:", err);
     }
   };
-  
-  
-  
-  
-  
 
   // Ver detalles: abre un modal (aquí usamos un estado modalTask)
   const handleViewDetails = (task: Task) => {
@@ -483,7 +548,8 @@ export default function ProjectPage() {
                               onChange={(e) => setEditTitle(e.target.value)}
                               onBlur={() => handleUpdateTask(task._id)}
                               onKeyDown={(e) => {
-                                if (e.key === "Enter") handleUpdateTask(task._id);
+                                if (e.key === "Enter")
+                                  handleUpdateTask(task._id);
                               }}
                               className="text-accent font-medium flex-1 focus:outline-none"
                             />
@@ -538,10 +604,13 @@ export default function ProjectPage() {
                         <div className="flex justify-between items-end">
                           {task.dueDate && (
                             <span className="text-accent text-sm">
-                              {new Date(task.dueDate).toLocaleDateString("es-ES", {
-                                day: "numeric",
-                                month: "short",
-                              })}
+                              {new Date(task.dueDate).toLocaleDateString(
+                                "es-ES",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                }
+                              )}
                             </span>
                           )}
                         </div>
@@ -553,7 +622,9 @@ export default function ProjectPage() {
                         >
                           <Heart
                             size={20}
-                            className={task.like ? "text-primary" : "text-accent"}
+                            className={
+                              task.like ? "text-primary" : "text-accent"
+                            }
                           />
                         </button>
                         {/* Ícono de lápiz para editar (al hacer click se activa la edición) */}
@@ -572,7 +643,9 @@ export default function ProjectPage() {
                     );
                   })
                 ) : (
-                  <p className="text-gray-500">No hay tareas en esta categoría.</p>
+                  <p className="text-gray-500">
+                    No hay tareas en esta categoría.
+                  </p>
                 )}
 
                 {/* Área de "Añadir tarea" */}
@@ -598,54 +671,88 @@ export default function ProjectPage() {
                         placeholder="Título de la tarea"
                       />
                     </div>
-                    <div className="flex justify-between items-center">
+                    <div className="z-50 flex justify-between items-center">
                       <div className="dropdown">
-                        <button tabIndex={0} className="badge badge-lg bg-gray-300 text-accent">
+                        <button
+                          tabIndex={0}
+                          className="badge badge-lg  text-accent"
+                        >
                           {newTaskPriority}
                         </button>
                         <ul
                           tabIndex={0}
-                          className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+                          className=" dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
                         >
-                          <li>
-                            <a onClick={() => setNewTaskPriority("Alta")}>Alta</a>
-                          </li>
-                          <li>
-                            <a onClick={() => setNewTaskPriority("Media")}>Media</a>
-                          </li>
-                          <li>
-                            <a onClick={() => setNewTaskPriority("Baja")}>Baja</a>
-                          </li>
+                          {/* Ítem de explicación */}
+                          <p className="flex items-center px-3 text-accent font-normal text-left">
+                            <FlagTriangleRight size={20} />
+                            Prioridad
+                          </p>
+                          <div className="divider mt-0"></div>
+                          {/* Opciones de prioridad con la clase badge */}
+                          <div className="flex flex-col gap-3 pb-2 pl-1">
+                            <li className="bg-transparent hover:bg-transparent active:bg-transparent">
+                              <a
+                                className="badge badge-error cursor-pointer p-0 px-2 !bg-error hover:!bg-error/90 active:!bg-error focus:!bg-error !text-accent hover:!text-accent active:!text-accent focus:!text-accent"
+                                onClick={() => setNewTaskPriority("Alta")}
+                              >
+                                Alta
+                              </a>
+                            </li>
+
+                            <li className="bg-transparent hover:bg-transparent active:bg-transparent">
+                              <a
+                                className="badge badge-warning cursor-pointer p-0 px-2 !bg-warning hover:!bg-warning/90 active:!bg-warning focus:!bg-warning !text-accent hover:!text-accent active:!text-accent focus:!text-accent"
+                                onClick={() => setNewTaskPriority("Media")}
+                              >
+                                Media
+                              </a>
+                            </li>
+
+                            <li className="bg-transparent hover:bg-transparent active:bg-transparent">
+                              <a
+                                className="badge badge-info cursor-pointer p-0 px-2 !bg-info hover:!bg-info/90 active:!bg-info focus:!bg-info !text-accent hover:!text-accent active:!text-accent focus:!text-accent"
+                                onClick={() => setNewTaskPriority("Baja")}
+                              >
+                                Baja
+                              </a>
+                            </li>
+                          </div>
                         </ul>
                       </div>
-                      <button
-                        onClick={() => dateInputRef.current?.showPicker()}
-                        className="btn btn-ghost"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-accent"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                    </div>
+                    <div className="flex justify-between w-full">
+                      {newTaskDueDate ? (
+                        <span
+                          className="text-accent cursor-pointer hover:text-slate-700"
+                          onClick={() => dateInputRef.current?.showPicker()}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </button>
+                        {formatDate(newTaskDueDate)}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => dateInputRef.current?.showPicker()}
+                          className="hover:text-slate-700"
+                        >
+                          <Calendar />
+                        </button>
+                      )}
+
                       <input
                         type="date"
                         ref={dateInputRef}
                         value={newTaskDueDate}
                         onChange={(e) => setNewTaskDueDate(e.target.value)}
-                        className="hidden"
+                        className="-z-50"
                       />
+
                       <button onClick={() => setNewTaskLike((prev) => !prev)}>
-                        <Heart size={20} className={newTaskLike ? "text-primary" : "text-accent"} />
+                        <Heart
+                          size={20}
+                          className={
+                            newTaskLike ? "text-primary" : "text-accent"
+                          }
+                        />
                       </button>
                     </div>
                   </div>
@@ -693,7 +800,9 @@ export default function ProjectPage() {
                   const cat = project?.categories.find((cat) =>
                     cat.tasks.some((t) => t._id === contextMenuTask.taskId)
                   );
-                  const task = cat?.tasks.find((t) => t._id === contextMenuTask.taskId);
+                  const task = cat?.tasks.find(
+                    (t) => t._id === contextMenuTask.taskId
+                  );
                   if (task) {
                     handleDuplicateTask(task);
                   }
@@ -704,35 +813,39 @@ export default function ProjectPage() {
               </a>
             </li>
             <li>
-  <a
-    onClick={() => {
-      const cat = project?.categories.find((cat) =>
-        cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
-      );
-      const task = cat?.tasks.find((t) => t._id === contextMenuTask!.taskId);
-      if (task) {
-        if (task.status === "Finalizada") {
-          // Si ya está finalizada, se cambia a en curso
-          handleMarkAsInProgress(task);
-        } else {
-          // Sino, se marca como finalizada
-          handleMarkAsFinished(task);
-        }
-      }
-      setContextMenuTask(null);
-    }}
-  >
-    {(() => {
-      const cat = project?.categories.find((cat) =>
-        cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
-      );
-      const task = cat?.tasks.find((t) => t._id === contextMenuTask!.taskId);
-      return task?.status === "Finalizada"
-        ? "Marcar como en curso"
-        : "Marcar como finalizada";
-    })()}
-  </a>
-</li>
+              <a
+                onClick={() => {
+                  const cat = project?.categories.find((cat) =>
+                    cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
+                  );
+                  const task = cat?.tasks.find(
+                    (t) => t._id === contextMenuTask!.taskId
+                  );
+                  if (task) {
+                    if (task.status === "Finalizada") {
+                      // Si ya está finalizada, se cambia a en curso
+                      handleMarkAsInProgress(task);
+                    } else {
+                      // Sino, se marca como finalizada
+                      handleMarkAsFinished(task);
+                    }
+                  }
+                  setContextMenuTask(null);
+                }}
+              >
+                {(() => {
+                  const cat = project?.categories.find((cat) =>
+                    cat.tasks.some((t) => t._id === contextMenuTask!.taskId)
+                  );
+                  const task = cat?.tasks.find(
+                    (t) => t._id === contextMenuTask!.taskId
+                  );
+                  return task?.status === "Finalizada"
+                    ? "Marcar como en curso"
+                    : "Marcar como finalizada";
+                })()}
+              </a>
+            </li>
 
             <li>
               <a
@@ -741,7 +854,9 @@ export default function ProjectPage() {
                   const cat = project?.categories.find((cat) =>
                     cat.tasks.some((t) => t._id === contextMenuTask.taskId)
                   );
-                  const task = cat?.tasks.find((t) => t._id === contextMenuTask.taskId);
+                  const task = cat?.tasks.find(
+                    (t) => t._id === contextMenuTask.taskId
+                  );
                   if (task) {
                     handleViewDetails(task);
                   }
@@ -775,11 +890,26 @@ export default function ProjectPage() {
               X
             </button>
             <h2 className="text-2xl font-bold mb-4">Detalles de la tarea</h2>
-            <p><strong>Título:</strong> {modalTask.title}</p>
-            <p><strong>Descripción:</strong> {modalTask.description}</p>
-            <p><strong>Prioridad:</strong> {modalTask.priority}</p>
-            <p><strong>Estado:</strong> {modalTask.status}</p>
-            <p><strong>Fecha de vencimiento:</strong> {new Date(modalTask.dueDate).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}</p>
+            <p>
+              <strong>Título:</strong> {modalTask.title}
+            </p>
+            <p>
+              <strong>Descripción:</strong> {modalTask.description}
+            </p>
+            <p>
+              <strong>Prioridad:</strong> {modalTask.priority}
+            </p>
+            <p>
+              <strong>Estado:</strong> {modalTask.status}
+            </p>
+            <p>
+              <strong>Fecha de vencimiento:</strong>{" "}
+              {new Date(modalTask.dueDate).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
           </div>
         </div>
       )}

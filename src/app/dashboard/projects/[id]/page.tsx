@@ -275,20 +275,24 @@ export default function ProjectPage() {
           newCategoryId = finalCat._id;
         }
       }
+      console.log(task)
+      const formattedDueDate = new Date(task.dueDate).toISOString().split("T")[0];
+
       const response = await fetch("/api/task", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: task.title + " (Duplicado)",
           description: task.description,
-          category: newCategoryId, // Usamos la categoría final si corresponde
+          category: newCategoryId, // Categoría final si corresponde
           priority: task.priority,
           projectId: project?._id,
-          dueDate: task.dueDate,
+          dueDate: formattedDueDate, // ✅ Convertida a YYYY-MM-DD
           like: task.like || false,
           status: task.status, // Mantener el mismo status
         }),
       });
+
       if (!response.ok) throw new Error("Error al duplicar tarea");
       const duplicatedTask = await response.json();
       // Actualizamos el estado local: agregamos el duplicado en la categoría correspondiente
@@ -511,7 +515,7 @@ export default function ProjectPage() {
   return (
     <div className="max-w-5xl text-accent relative">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">{project?.name}</h1>
+        <h1 className="text-2xl font-medium">{project?.name}</h1>
         <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
           <UserPlus className="text-red-400" size={18} />
           <span className="text-sm">Añadir miembro</span>

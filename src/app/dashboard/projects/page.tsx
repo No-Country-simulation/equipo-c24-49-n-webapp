@@ -99,9 +99,9 @@ export default function Proyectos() {
 
       <AddProjectPopup onProjectCreated={handleProjectCreated} />
 
-      <div className=" flex justify-start items-start gap-[21px] flex-wrap content-start">
+      <div className="  flex justify-start items-start gap-[21px] flex-wrap content-start">
         {projects.map((project) => (
-          <div key={project._id} className="relative group w-[292px] h-[189px]">
+          <div key={project._id} className="  relative group w-[292px] h-[189px]">
             <Link href={`/dashboard/projects/${project._id}`}>
               <div
                 className="  rounded-2xl p- h-44 flex items-center justify-center "
@@ -119,7 +119,7 @@ export default function Proyectos() {
         ))}
 
         {/* Añadir proyecto (alternativo) */}
-        <div className="rounded-2xl p-8 w-[292px] h-[189px] flex items-center justify-center bg-white border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors">
+        <div className=" active:scale-95 transition-all cursor-pointer rounded-2xl p-8 w-[292px] h-[189px] flex items-center justify-center bg-white border-2 border-dashed border-gray-200 hover:border-gray-300">
           <Plus className="h-10 w-10 text-red-400" />
         </div>
       </div>

@@ -93,7 +93,7 @@ export default function AddProjectPopup({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#5a3d2b] mb-10 hover:bg-gray-50 transition-colors"
+        className="active:scale-95 transition-all inline-flex items-center gap-2 border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#5a3d2b] mb-10 hover:bg-gray-50 "
       >
         <img src="/icons/square-plus-border.svg" alt="Añadir proyecto" />
         Añadir proyecto

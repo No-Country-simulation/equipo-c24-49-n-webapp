@@ -24,7 +24,7 @@ const DashboardCard = () => {
           <p className="text-[20px]">¿Qué vas a hacer hoy?</p>
         </div>
 
-        <div className="grid grid-cols-2 w-[500px] gap-7 bg-gray-100">
+        <div className="grid grid-cols-2 w-[500px] gap-7">
           <Shortcut icon="/new-project.svg" text="Crear un nuevo proyecto" />
           <Shortcut icon="/my-projects.svg" text="Ver mis proyectos" />
           <Shortcut icon="/add-member.svg" text="Añadir un nuevo miembro" />

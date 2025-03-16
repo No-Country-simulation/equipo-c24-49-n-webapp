@@ -40,6 +40,7 @@ El proyecto está diseñado para **3 semanas** y cuenta con un equipo de:
 - Autenticación con NextAuth.js (Google OAuth y credenciales)
 - Bcryptjs para hashing de contraseñas
 
+## 🚀 Tecnologías Utilizadas
 
 ## 📁 Estructura del Proyecto
 ```bash

@@ -40,10 +40,6 @@ El proyecto está diseñado para **3 semanas** y cuenta con un equipo de:
 - Autenticación con NextAuth.js (Google OAuth y credenciales)
 - Bcryptjs para hashing de contraseñas
 
-  ##📁 Link al Prototipo en Alta Fidelidad
-```bash
-https://www.figma.com/design/YM07icruPhKfUFm8oXIo6l/Panal-Co---Gestor-de-Tareas-Colaborativo?node-id=0-1&t=oNd6BXCB82Sg5xKW-1
-```
 
 ## 📁 Estructura del Proyecto
 ```bash

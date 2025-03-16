@@ -41,6 +41,8 @@ El proyecto está diseñado para **3 semanas** y cuenta con un equipo de:
 ## 🎨 **Prototipo y Recursos**
 **🔗 Prototipo en alta fidelidad y otros recursos:**
 https://www.figma.com/design/YM07icruPhKfUFm8oXIo6l/Panal-Co---Gestor-de-Tareas-Colaborativo?node-id=0-1&t=oNd6BXCB82Sg5xKW-1
+https://www.figma.com/design/CGYfYPPkeLKpfUrd5ff9lR/Gestor-de-Tareas--Versiones-Responsive?node-id=0-1&t=qkuAJB2gahPCxrRU-1
+
 
 ## 📁 Estructura del Proyecto
 ```bash

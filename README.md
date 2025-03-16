@@ -14,11 +14,13 @@ El proyecto está diseñado para **3 semanas** y cuenta con un equipo de:
 - **1 QA Tester** (Pruebas manuales).
 
 **Miembros del equipo:**
-Geraldine Cardozo – UX/UI
-Gabriela Reyes – UX/UI
-Julio Condor – Frontend, Backend
-Diego Mateus – Frontend
-Mailen Fonseca – QA Tester
+- Geraldine Cardozo – UX/UI=
+- Gabriela Reyes – UX/UI
+- Julio Condor – Frontend, Backend
+- Diego Mateus – Frontend
+- Mailen Fonseca – QA Tester
+
+
 
 ## 🚀 Tecnologías Utilizadas
 ### **UX/UI**

@@ -20,8 +20,6 @@ El proyecto está diseñado para **3 semanas** y cuenta con un equipo de:
 - Diego Mateus – Frontend
 - Mailen Fonseca – QA Tester
 
-
-
 ## 🚀 Tecnologías Utilizadas
 ### **UX/UI**
 - Figma

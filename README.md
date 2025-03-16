@@ -21,6 +21,12 @@ Diego Mateus – Frontend
 Mailen Fonseca – QA Tester
 
 ## 🚀 Tecnologías Utilizadas
+### **UXUI**
+- Figma
+- Adobe Photoshop
+- Adobe Firefly
+- Adobe After Effects
+  
 ### **Frontend**
 - Next.js (React)
 - Tailwind CSS + DaisyUI

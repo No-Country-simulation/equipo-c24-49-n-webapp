@@ -45,6 +45,8 @@ Prototipo interactivo y en alta fidelidad: https://www.figma.com/design/YM07icru
 
 Versión responsive en proceso: https://www.figma.com/design/CGYfYPPkeLKpfUrd5ff9lR/Gestor-de-Tareas--Versiones-Responsive?node-id=0-1&t=qkuAJB2gahPCxrRU-1
 
+## 🔍 **Testing manual** 🐞
+🔗https://drive.google.com/file/d/1ei6rogxXJNWdTAoTdaOf8LBVymKb315Q/view?usp=sharing
 
 ## 📁 Estructura del Proyecto
 ```bash
